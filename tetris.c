@@ -4,19 +4,20 @@
 
 #include "tetris.h"
 
-int shape_colour(char shape) {
-	int colour_code;
-	switch (shape) {
-	case 'O': colour_code = 31; break;
-	case 'L': colour_code = 32; break;
-	case 'J': colour_code = 33; break;
-	case 'I': colour_code = 36; break;
-	case 'S': colour_code = 35; break;
-	case 'Z': colour_code = 36; break;
-	case 'A': colour_code = 33; break;
-	default: colour_code = 0; break;
+struct shape get_shape_from_name(char sname) {
+	switch (sname) {
+	case 'O': return SHAPES[O_SHAPE]; break;
+	case 'L': return SHAPES[L_SHAPE]; break;
+	case 'J': return SHAPES[J_SHAPE]; break;
+	case 'I': return SHAPES[I_SHAPE]; break;
+	case 'S': return SHAPES[S_SHAPE]; break;
+	case 'Z': return SHAPES[Z_SHAPE]; break;
+	case 'T': return SHAPES[T_SHAPE]; break;
+	default:
+		struct shape s = {};
+		return s;
+		break;
 	}
-	return colour_code;
 }
 
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
@@ -34,7 +35,7 @@ void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
 		printf("%s", CHAR_VERTICAL_EDGE);
 	else {
 		if (board[r][c])
-			printf("\e[%dm%s\e[0m", shape_colour(board[r][c]), BLOCK);
+			printf("\e[%dm%s\e[0m", get_shape_from_name(board[r][c]).color, BLOCK);
 		else
 			printf("  ");
 	}
@@ -49,8 +50,12 @@ void display_grid(char board[ROW_GRID][COL_GRID]) {
 	}
 }
 
+struct shape pick_shape(void) {
+	return SHAPES[rand() % SIZE_SHAPE];
+}
 
-int main(int argc, char* argv[]) {
-	char grid[ROW_GRID][COL_GRID] = {};
-	display_grid(grid);
+int insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape) {
+	for (int r = 0; r < 4; r++) {
+		memcpy(board[r]+(COL_GRID/2)-1, ishape.structure[r], 4);
+	}
 }

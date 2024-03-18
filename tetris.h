@@ -16,11 +16,30 @@
 #define COL_GRID 20
 #define INIT_ROW -1
 #define INIT_COL -1
-#define S_SHAPE 7
 
-char SHAPES[S_SHAPE] = {'O', 'L', 'J', 'I', 'S', 'Z', 'A'};
+enum Shapes {
+	O_SHAPE,
+	L_SHAPE,
+	J_SHAPE,
+	I_SHAPE,
+	S_SHAPE,
+	Z_SHAPE,
+	T_SHAPE,
+	SIZE_SHAPE
+};
+
+enum Colors {BLACK=30, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
+
+struct shape {
+	char name;
+	char structure[4][4];
+	int color;
+};
+
+extern struct shape SHAPES[SIZE_SHAPE];
 
 void display_grid(char board[ROW_GRID][COL_GRID]);
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]);
-int shape_colour(char shape);
-char pick_shape(void);
+struct shape pick_shape(void);
+struct shape get_shape_from_name(char sname);
+int insert_shape(char board[ROW_GRID][COL_GRID], struct shape);
