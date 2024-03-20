@@ -4,6 +4,9 @@
 
 #include "tetris.h"
 
+#define MIDDLE_COL (COL_GRID/2-1)
+
+
 struct shape get_shape_from_name(char sname) {
 	switch (sname) {
 	case 'O': return SHAPES[O_SHAPE]; break;
@@ -54,8 +57,60 @@ struct shape pick_shape(void) {
 	return SHAPES[rand() % SIZE_SHAPE];
 }
 
-int insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape) {
+struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape) {
+	int cnt = 0;
+	struct c_shape ic_shape;
+	struct point p;
+	ic_shape.ishape = ishape;
 	for (int r = 0; r < 4; r++) {
-		memcpy(board[r]+(COL_GRID/2)-1, ishape.structure[r], 4);
+		for (int c = 0; c < 4; c++) {
+			if (ishape.structure[r][c] != '\0') {
+				board[r][c+MIDDLE_COL] = ishape.structure[r][c];
+				p.row = r;
+				p.col = c+MIDDLE_COL;
+				ic_shape.points[cnt++] = p;
+			}
+		}
+	}
+	return ic_shape;
+}
+
+
+void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row++][ic_shape->points[p].col] = '\0';
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+}
+
+void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row][ic_shape->points[p].col++] = '\0';
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+}
+
+void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row][ic_shape->points[p].col--] = '\0';
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+}
+
+void move(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action) {
+	switch (action) {
+	case 'L': move_left(ic_shape, board); break;
+	case 'R': move_right(ic_shape, board); break;
+	case 'D': move_down(ic_shape, board); break;
+	default: break;
 	}
 }

@@ -17,6 +17,8 @@
 #define INIT_ROW -1
 #define INIT_COL -1
 
+
+// Enums
 enum Shapes {
 	O_SHAPE,
 	L_SHAPE,
@@ -30,16 +32,42 @@ enum Shapes {
 
 enum Colors {BLACK=30, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
 
+
+// Structures
 struct shape {
 	char name;
 	char structure[4][4];
 	int color;
 };
 
+struct point {
+	int row;
+	int col;
+};
+
+struct c_shape {
+	struct shape ishape;
+	struct point points[4];
+};
+
+
+// Globals variables
 extern struct shape SHAPES[SIZE_SHAPE];
 
+
+// Function declarations
 void display_grid(char board[ROW_GRID][COL_GRID]);
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]);
 struct shape pick_shape(void);
 struct shape get_shape_from_name(char sname);
-int insert_shape(char board[ROW_GRID][COL_GRID], struct shape);
+struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape);
+
+// Actions function declarations for shapes
+void move(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action);
+void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void rtorate(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void lrotate(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void drop(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+int check_position(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);

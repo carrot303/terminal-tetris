@@ -44,8 +44,18 @@ struct shape SHAPES[SIZE_SHAPE] = {
 
 
 int main(int argc, char** argv) {
-	srand(time(NULL));
+	struct c_shape current_cshape;
 	char grid[ROW_GRID][COL_GRID] = {};
-	insert_shape(grid, pick_shape());
-	display_grid(grid);
+
+	srand(time(NULL));
+
+	current_cshape = insert_shape(grid, pick_shape());
+
+	for (int i =0;i < 9; i++) {
+		system("clear");
+		display_grid(grid);
+		move_down(&current_cshape, grid); // move(&current_cshape, grid, 'L');
+		system("sleep 0.5");
+	}
+
 }
