@@ -21,10 +21,10 @@ struct shape SHAPES[SIZE_SHAPE] = {
 										 {'J','J','\0','\0'},
 										 {'\0','\0','\0','\0'}}},
 
-	{.name='I', .color=CYAN, .structure={{'I','\0','\0','\0'},
-										 {'I','\0','\0','\0'},
-										 {'I','\0','\0','\0'},
-										 {'I','\0','\0','\0'}}},
+	{.name='I', .color=CYAN, .structure={{'\0','\0','I','\0'},
+										 {'\0','\0','I','\0'},
+										 {'\0','\0','I','\0'},
+										 {'\0','\0','I','\0'}}},
 
 	{.name='S', .color=RED, .structure={{'\0','\0','\0','\0'},
 										{'\0','S','S','\0'},
@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 	for (int i =0;i < 9; i++) {
 		system("clear");
 		display_grid(grid);
-		move_down(&current_cshape, grid); // move(&current_cshape, grid, 'L');
+		move_down(&current_cshape, grid);
 		system("sleep 0.5");
 	}
 

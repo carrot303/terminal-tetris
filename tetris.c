@@ -114,3 +114,47 @@ void move(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action)
 	default: break;
 	}
 }
+
+void point_rotate_right(struct point* ptr) {
+	int abs_row = (ptr->row)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
+	int abs_col = (ptr->col)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
+	int final_abs_row = abs_col;
+	int final_abs_col = 3-abs_row;
+	ptr->row += final_abs_row-abs_row;
+	ptr->col += final_abs_col-abs_col;
+}
+
+void point_rotate_left(struct point* ptr) {
+	int abs_row = (ptr->row)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
+	int abs_col = (ptr->col)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
+	int final_abs_row = 3-abs_col;
+	int final_abs_col = abs_row;
+	ptr->row += final_abs_row-abs_row;
+	ptr->col += final_abs_col-abs_col;
+}
+
+void shape_rotate_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
+		printf("(%d,%d) -> ", ic_shape->points[p].row,ic_shape->points[p].col);
+		point_rotate_right(&ic_shape->points[p]);
+		printf("(%d,%d)\n", ic_shape->points[p].row,ic_shape->points[p].col);
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+}
+
+void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
+		printf("(%d,%d) -> ", ic_shape->points[p].row,ic_shape->points[p].col);
+		point_rotate_left(&ic_shape->points[p]);
+		printf("(%d,%d)\n", ic_shape->points[p].row,ic_shape->points[p].col);
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+}
