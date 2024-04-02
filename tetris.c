@@ -4,7 +4,7 @@
 
 #include "tetris.h"
 
-#define MIDDLE_COL (COL_GRID/2-1)
+#define MIDDLE_COL (COL_GRID/2-2)
 
 
 struct shape get_shape_from_name(char sname) {
