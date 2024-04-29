@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 	while (1) {
 		system("clear");
 		display_grid(grid);
-		shape_rotate_left(&current_cshape, grid);
+		shape_rotate_right(&current_cshape, grid);
 		if (getc(stdin) == EOF) {
 			break;
 		};
