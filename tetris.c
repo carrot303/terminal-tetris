@@ -4,24 +4,8 @@
 
 #include "tetris.h"
 
-#define MIDDLE_COL (COL_GRID/2-2)
+#define MIDDLE_COL ((COL_GRID/2-2)-1)
 
-
-struct shape get_shape_from_name(char sname) {
-	switch (sname) {
-	case 'O': return SHAPES[O_SHAPE]; break;
-	case 'L': return SHAPES[L_SHAPE]; break;
-	case 'J': return SHAPES[J_SHAPE]; break;
-	case 'I': return SHAPES[I_SHAPE]; break;
-	case 'S': return SHAPES[S_SHAPE]; break;
-	case 'Z': return SHAPES[Z_SHAPE]; break;
-	case 'T': return SHAPES[T_SHAPE]; break;
-	default:
-		struct shape s = {};
-		return s;
-		break;
-	}
-}
 
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
 	if (r == INIT_ROW && c == INIT_COL)
@@ -38,7 +22,7 @@ void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
 		printf("%s", CHAR_VERTICAL_EDGE);
 	else {
 		if (board[r][c])
-			printf("\e[%dm%s\e[0m", get_shape_from_name(board[r][c]).color, BLOCK);
+			printf("\e[%dm%s\e[0m", SHAPES[get_shape_index(board[r][c])].color, BLOCK);
 		else
 			printf("  ");
 	}
@@ -62,6 +46,7 @@ struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape)
 	struct c_shape ic_shape;
 	struct point p;
 	ic_shape.ishape = ishape;
+	ic_shape.direction = 0;
 	for (int r = 0; r < 4; r++) {
 		for (int c = 0; c < 4; c++) {
 			if (ishape.structure[r][c] != '\0') {
@@ -115,18 +100,18 @@ void move(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action)
 	}
 }
 
-void point_rotate_right(struct point* ptr) {
-	int abs_row = (ptr->row)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
-	int abs_col = (ptr->col)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
+void point_rotate_right(struct point* ptr, struct point* origin_point) {
+	int abs_row = ptr->row-origin_point->row;
+	int abs_col = ptr->col-origin_point->col;
 	int final_abs_row = abs_col;
 	int final_abs_col = 3-abs_row;
 	ptr->row += final_abs_row-abs_row;
 	ptr->col += final_abs_col-abs_col;
 }
 
-void point_rotate_left(struct point* ptr) {
-	int abs_row = (ptr->row)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
-	int abs_col = (ptr->col)%4; // TODO: there is a bug here -> when it's divisible by 4 its become 0, but may not be zero?
+void point_rotate_left(struct point* ptr, struct point* origin_point) {
+	int abs_row = ptr->row-origin_point->row;
+	int abs_col = ptr->col-origin_point->col;
 	int final_abs_row = 3-abs_col;
 	int final_abs_col = abs_row;
 	ptr->row += final_abs_row-abs_row;
@@ -135,26 +120,61 @@ void point_rotate_left(struct point* ptr) {
 
 void shape_rotate_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
+	struct point origin_point = get_origin_point(ic_shape);
 	for (int p = 0; p < 4; p++) {
 		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
-		printf("(%d,%d) -> ", ic_shape->points[p].row,ic_shape->points[p].col);
-		point_rotate_right(&ic_shape->points[p]);
-		printf("(%d,%d)\n", ic_shape->points[p].row,ic_shape->points[p].col);
+		point_rotate_right(&ic_shape->points[p], &origin_point);
 		tmp_pts[p] = ic_shape->points[p];
 	}
 	for (int p = 0; p < 4; p++)
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	ic_shape->direction++;
 }
 
 void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
+	struct point origin_point = get_origin_point(ic_shape);
 	for (int p = 0; p < 4; p++) {
 		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
-		printf("(%d,%d) -> ", ic_shape->points[p].row,ic_shape->points[p].col);
-		point_rotate_left(&ic_shape->points[p]);
-		printf("(%d,%d)\n", ic_shape->points[p].row,ic_shape->points[p].col);
+		point_rotate_left(&ic_shape->points[p], &origin_point);
 		tmp_pts[p] = ic_shape->points[p];
 	}
 	for (int p = 0; p < 4; p++)
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	ic_shape->direction--;
+}
+
+int get_shape_index(char shape_name) {
+	int shape_idx;
+	switch (shape_name) {
+	case 'O': shape_idx = O_SHAPE; break;
+	case 'L': shape_idx = L_SHAPE; break;
+	case 'J': shape_idx = J_SHAPE; break;
+	case 'I': shape_idx = I_SHAPE; break;
+	case 'S': shape_idx = S_SHAPE; break;
+	case 'Z': shape_idx = Z_SHAPE; break;
+	case 'T': shape_idx = T_SHAPE; break;
+	default: break;
+	}
+	return shape_idx;
+}
+
+struct point get_origin_point(struct c_shape* ic_shape) {
+	int cnt, sum, idx, rmin = COL_GRID*ROW_GRID+1, cmin = COL_GRID*ROW_GRID+1;
+	struct point origin_point;
+	int topest_points[4] = {0, 0, 0, 0};
+	for (int i = 0, cnt = 0; i < 4; i++)
+		rmin = ic_shape->points[i].row < rmin ? ic_shape->points[i].row : rmin;
+	for (int i = 0, cnt = 0; i < 4; i++)
+		topest_points[i] = ic_shape->points[i].row == rmin ? 1 : 0;
+	for (int i = 0, cnt = 0; i < 4; i++) {
+		if (topest_points[i] == 1 && ic_shape->points[i].col < cmin) {
+			cmin = ic_shape->points[i].col;
+			idx = i;
+		}
+	}
+	origin_point = ic_shape->points[idx];
+	origin_point.row += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][ic_shape->direction%4][0];
+	origin_point.col += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][ic_shape->direction%4][1];
+	return origin_point;
 }

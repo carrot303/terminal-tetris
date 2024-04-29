@@ -43,19 +43,37 @@ struct shape SHAPES[SIZE_SHAPE] = {
 };
 
 
+/* specify origin rule:
+	per shape there is rule to find out the origin point, e.g:
+	if shape is O_SHAPE and current direction of shape is UP,
+	rule for origin point is (-1, -1): that means the first point row,col must + with (-1, -1)
+*/
+int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
+	{{-1, -1}, 	{-1, -1}, 	{-1, -1}, 	{-1, -1}}, 		// O_SHAPE
+	{{0, -1}, 	{-1, -1}, 	{-1, -1}, 	{-1, -2}}, 		// L_SHAPE
+	{{0, -1}, 	{0, -1}, 	{-1, -2}, 	{-2, 0}}, 		// J_SHAPE
+	{{0, -2}, 	{-2, 0}, 	{0, -1}, 	{-1, 0}}, 		// I_SHAPE
+	{{-1, -1}, 	{0, -1}, 	{-1, -2}, 	{-1, -1}}, 		// S_SHAPE
+	{{-1, 0}, 	{0, -2}, 	{-1, -1}, 	{-1, -2}}, 		// Z_SHAPE
+	{{-1, 0}, 	{0, -2}, 	{-1, -2}, 	{-1, -1}}, 		// T_SHAPE
+};
+
+
 int main(int argc, char** argv) {
 	struct c_shape current_cshape;
 	char grid[ROW_GRID][COL_GRID] = {};
 
 	srand(time(NULL));
+	current_cshape = insert_shape(grid, SHAPES[argv[1][0] - '0']);
 
-	current_cshape = insert_shape(grid, pick_shape());
-
-	for (int i =0;i < 9; i++) {
+	while (1) {
 		system("clear");
 		display_grid(grid);
-		move_down(&current_cshape, grid);
-		system("sleep 0.5");
+		shape_rotate_left(&current_cshape, grid);
+		if (getc(stdin) == EOF) {
+			break;
+		};
+
 	}
 
 }

@@ -27,11 +27,10 @@ enum Shapes {
 	S_SHAPE,
 	Z_SHAPE,
 	T_SHAPE,
-	SIZE_SHAPE
+	SIZE_SHAPE = 7
 };
 
 enum Colors {BLACK=30, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE};
-
 
 // Structures
 struct shape {
@@ -48,18 +47,19 @@ struct point {
 struct c_shape {
 	struct shape ishape;
 	struct point points[4];
+	int direction; // 0-4
 };
 
 
 // Globals variables
 extern struct shape SHAPES[SIZE_SHAPE];
+extern int ORIGIN_RULES[SIZE_SHAPE][4][2];
 
 
 // Function declarations
 void display_grid(char board[ROW_GRID][COL_GRID]);
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]);
 struct shape pick_shape(void);
-struct shape get_shape_from_name(char sname);
 struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape);
 
 // Actions function declarations for shapes
@@ -68,8 +68,12 @@ void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void shape_rotate_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
-void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
-void point_rotate_right(struct point* ptr);
-void point_rotate_left(struct point* ptr);
-void drop(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
-int check_position(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]); // BUG
+void point_rotate_right(struct point* ptr, struct point* origin_point); // BUG
+void point_rotate_left(struct point* ptr, struct point* origin_point);
+struct point get_origin_point(struct c_shape*);
+int get_shape_index(char shape_name);
+
+
+void drop(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]); // NOT IMPLEMENTED YET
+int check_position(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]); // NOT IMPLEMENTED YET
