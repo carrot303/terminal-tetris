@@ -5,6 +5,7 @@
 #include "tetris.h"
 
 #define MIDDLE_COL ((COL_GRID/2-2)-1)
+#define ABS(x) (x >= 0 ? x : -x)
 
 
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
@@ -141,7 +142,7 @@ void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID])
 	}
 	for (int p = 0; p < 4; p++)
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
-	ic_shape->direction--;
+	ic_shape->direction += 3;
 }
 
 int get_shape_index(char shape_name) {
@@ -161,6 +162,7 @@ int get_shape_index(char shape_name) {
 
 struct point get_origin_point(struct c_shape* ic_shape) {
 	int cnt, sum, idx, rmin = COL_GRID*ROW_GRID+1, cmin = COL_GRID*ROW_GRID+1;
+	int abs_direction;
 	struct point origin_point;
 	int topest_points[4] = {0, 0, 0, 0};
 	for (int i = 0, cnt = 0; i < 4; i++)
@@ -174,7 +176,8 @@ struct point get_origin_point(struct c_shape* ic_shape) {
 		}
 	}
 	origin_point = ic_shape->points[idx];
-	origin_point.row += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][ic_shape->direction%4][0];
-	origin_point.col += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][ic_shape->direction%4][1];
+	abs_direction = ic_shape->direction%4;
+	origin_point.row += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][abs_direction][0];
+	origin_point.col += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][abs_direction][1];
 	return origin_point;
 }
