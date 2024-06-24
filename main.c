@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
-#include <ncurses.h>
-#include <locale.h> 
+#include <locale.h>
 #include <unistd.h>
+#include <ncurses.h>
 
 #include "tetris.h"
 
@@ -93,18 +93,19 @@ int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 struct c_shape current_cshape;
 char grid[ROW_GRID][COL_GRID] = {};
 int key;
-int delay = 1; 
-
+int pre_key;
+float delay = 0.004;
+clock_t start;
 
 int main(int argc, char** argv) {
 	srand(time(NULL));
 	setlocale(LC_ALL, "");
-	pthread_t thread_id;
 
 	initscr();
 	keypad(stdscr, TRUE);
 	noecho();
-	nodelay(stdscr, FALSE);
+	timeout(300);
+	cbreak();
 
 	if (has_colors() != 1) {
 		endwin();
@@ -112,28 +113,42 @@ int main(int argc, char** argv) {
         exit(1);
 	}
 	start_color();
-	// init color pairs
-	for (int i = 1; i < 8; i++) {
-		init_pair(i, SHAPES[i-1].color, 0);
-	}
+	for (int i = 1; i < 8; i++) init_pair(i, SHAPES[i-1].color, 0);
+
 	bkgd(COLOR_PAIR(rand() % SIZE_SHAPE)); // random background color
 	current_cshape = insert_shape(grid, pick_shape());
-
-
+	start = clock();
 	while (1) {
+		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
+			move_down(&current_cshape, grid);
+			start = clock();
+		}
 		display_grid(grid);
 		refresh();
 		key = getch();
+		if (pre_key == KEY_DOWN && key != KEY_DOWN)
+			delay = 0.004;
 		switch (key) {
-		case 'a': case 'A': do_action(&current_cshape, grid, '<'); break;
-		case 'd': case 'D': do_action(&current_cshape, grid, '>'); break;
-		case KEY_DOWN: do_action(&current_cshape, grid, 'D'); break;
-		case KEY_RIGHT: do_action(&current_cshape, grid, 'R'); break;
-		case KEY_LEFT: do_action(&current_cshape, grid, 'L'); break;
-		case KEY_UP: do_action(&current_cshape, grid, 'U'); break;
-		case 's': case 'S': current_cshape = insert_shape(grid, pick_shape()); break;
-		case 'q': case 'Q': goto endgame;
+		case 'w':
+		case 'W':
+		case KEY_UP:
+			do_action(&current_cshape, grid, '>');
+			break;
+		case KEY_DOWN:
+			// speed up
+			delay = 0.001;
+			break;
+		case KEY_RIGHT:
+			do_action(&current_cshape, grid, 'R');
+			break;
+		case KEY_LEFT:
+			do_action(&current_cshape, grid, 'L');
+			break;
+		case 'q':
+		case 'Q':
+			goto endgame;
 		}
+		pre_key = key;
 		clear();
 	}
 
