@@ -10,22 +10,27 @@
 
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
 	if (r == INIT_ROW && c == INIT_COL)
-		printf("%s", CHAR_TOP_LEFT_CORNER);
+		addstr(CHAR_TOP_LEFT_CORNER);
 	else if (r == INIT_ROW && c == COL_GRID)
-		printf("%s", CHAR_TOP_RIGHT_CORNER);
+		addstr(CHAR_TOP_RIGHT_CORNER);
 	else if (r == ROW_GRID && c == INIT_COL)
-		printf("%s", CHAR_BOTTOM_LEFT_CORNER);
+		addstr(CHAR_BOTTOM_LEFT_CORNER);
 	else if (r == ROW_GRID && c == COL_GRID)
-		printf("%s", CHAR_BOTTOM_RIGHT_CORNER);
-	else if ((r == INIT_ROW || r == ROW_GRID) && INIT_COL < c < COL_GRID)
-		printf("%s%s", CHAR_HORIZANTAL_EDGE, CHAR_HORIZANTAL_EDGE);
+		addstr(CHAR_BOTTOM_RIGHT_CORNER);
+	else if ((r == INIT_ROW || r == ROW_GRID) && INIT_COL < c < COL_GRID) {
+		addstr(CHAR_HORIZANTAL_EDGE);
+		addstr(CHAR_HORIZANTAL_EDGE);
+	}
 	else if (c == INIT_COL || c == COL_GRID)
-		printf("%s", CHAR_VERTICAL_EDGE);
+		addstr(CHAR_VERTICAL_EDGE);
 	else {
-		if (board[r][c])
-			printf("\e[%dm%s\e[0m", SHAPES[get_shape_index(board[r][c])].color, BLOCK);
+		if (board[r][c]) {
+			attron(COLOR_PAIR(get_shape_index(board[r][c])+1));
+			printw(BLOCK);
+			attroff(COLOR_PAIR(get_shape_index(board[r][c])+1));
+		}
 		else
-			printf("  ");
+			addstr("  ");
 	}
 }
 
@@ -34,7 +39,7 @@ void display_grid(char board[ROW_GRID][COL_GRID]) {
 		for (int c = INIT_COL; c <= COL_GRID; c++) {
 			display_cell(r, c, board);
 		}
-		printf("\n");
+		printw("\n");
 	}
 }
 
@@ -60,7 +65,6 @@ struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape)
 	}
 	return ic_shape;
 }
-
 
 void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
@@ -92,11 +96,13 @@ void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
 }
 
-void move(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action) {
+void do_action(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action) {
 	switch (action) {
 	case 'L': move_left(ic_shape, board); break;
 	case 'R': move_right(ic_shape, board); break;
 	case 'D': move_down(ic_shape, board); break;
+	case '>': shape_rotate_right(ic_shape, board); break;
+	case '<': shape_rotate_right(ic_shape, board); break;
 	default: break;
 	}
 }

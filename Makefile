@@ -1,10 +1,11 @@
 OBJECTS = tetris.o main.o
 TARGET_BIN = tetris
 CC = gcc
+PARAMS = -lncursesw
 .PHONY = clean
 
 build: ${OBJECTS}
-	$(CC) -o ${TARGET_BIN} $^
+	$(CC) -o ${TARGET_BIN} $^ ${PARAMS}
 
 main.o:
 	$(CC) -c main.c
