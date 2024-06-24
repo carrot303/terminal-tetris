@@ -2,7 +2,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include <ncurses.h>
-#include <locale.h>
+#include <locale.h> 
+#include <unistd.h>
 
 #include "tetris.h"
 
@@ -88,13 +89,23 @@ int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 	{{-1, 0}, 	{0, -2}, 	{-1, -2}, 	{-1, -1}}, 		// T_SHAPE
 };
 
+
+struct c_shape current_cshape;
+char grid[ROW_GRID][COL_GRID] = {};
+int key;
+int delay = 1; 
+
+
 int main(int argc, char** argv) {
-	struct c_shape current_cshape;
-	char grid[ROW_GRID][COL_GRID] = {};
 	srand(time(NULL));
 	setlocale(LC_ALL, "");
+	pthread_t thread_id;
 
 	initscr();
+	keypad(stdscr, TRUE);
+	noecho();
+	nodelay(stdscr, FALSE);
+
 	if (has_colors() != 1) {
 		endwin();
 		printf("Your terminal does not support color\n");
@@ -105,14 +116,27 @@ int main(int argc, char** argv) {
 	for (int i = 1; i < 8; i++) {
 		init_pair(i, SHAPES[i-1].color, 0);
 	}
-
+	bkgd(COLOR_PAIR(rand() % SIZE_SHAPE)); // random background color
 	current_cshape = insert_shape(grid, pick_shape());
+
+
 	while (1) {
 		display_grid(grid);
 		refresh();
-		getch();
+		key = getch();
+		switch (key) {
+		case 'a': case 'A': do_action(&current_cshape, grid, '<'); break;
+		case 'd': case 'D': do_action(&current_cshape, grid, '>'); break;
+		case KEY_DOWN: do_action(&current_cshape, grid, 'D'); break;
+		case KEY_RIGHT: do_action(&current_cshape, grid, 'R'); break;
+		case KEY_LEFT: do_action(&current_cshape, grid, 'L'); break;
+		case KEY_UP: do_action(&current_cshape, grid, 'U'); break;
+		case 's': case 'S': current_cshape = insert_shape(grid, pick_shape()); break;
+		case 'q': case 'Q': goto endgame;
+		}
 		clear();
 	}
 
-	endwin();
+	endgame:
+		endwin();
 }

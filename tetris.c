@@ -76,6 +76,16 @@ void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
 }
 
+void move_up(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row--][ic_shape->points[p].col] = '\0';
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+}
+
 void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
 	for (int p = 0; p < 4; p++) {
@@ -101,6 +111,7 @@ void do_action(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char ac
 	case 'L': move_left(ic_shape, board); break;
 	case 'R': move_right(ic_shape, board); break;
 	case 'D': move_down(ic_shape, board); break;
+	case 'U': move_up(ic_shape, board); break;
 	case '>': shape_rotate_right(ic_shape, board); break;
 	case '<': shape_rotate_right(ic_shape, board); break;
 	default: break;

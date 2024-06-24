@@ -65,6 +65,7 @@ struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape);
 void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+void move_up(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void shape_rotate_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void point_rotate_right(struct point* ptr, struct point* origin_point);
