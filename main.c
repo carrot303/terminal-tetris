@@ -20,7 +20,7 @@ struct shape SHAPES[SIZE_SHAPE] = {
 	},
 	{
 		.name='L',
-		.color=COLOR_WHITE,
+		.color=COLOR_ORANGE,
 		.structure=
 			{{'\0','L','\0','\0'},
 			{'\0','L','\0','\0'},
@@ -47,7 +47,7 @@ struct shape SHAPES[SIZE_SHAPE] = {
 	},
 	{
 		.name='S',
-		.color=COLOR_RED,
+		.color=COLOR_GREEN,
 		.structure=
 			{{'\0','\0','\0','\0'},
 			{'\0','S','S','\0'},
@@ -56,7 +56,7 @@ struct shape SHAPES[SIZE_SHAPE] = {
 	},
 	{
 		.name='Z',
-		.color=COLOR_GREEN,
+		.color=COLOR_RED,
 		.structure=
 			{{'\0','\0','\0','\0'},
 			{'Z','Z','\0','\0'},
