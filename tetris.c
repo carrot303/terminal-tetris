@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ncurses.h>
 
 #include "tetris.h"
 
@@ -197,4 +198,44 @@ struct point get_origin_point(struct c_shape* ic_shape) {
 	origin_point.row += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][abs_direction][0];
 	origin_point.col += ORIGIN_RULES[get_shape_index(ic_shape->ishape.name)][abs_direction][1];
 	return origin_point;
+}
+
+int is_point_shape(int row, int col, struct c_shape* ic_shape) {
+	for (int i = 0; i < 4; i++) {
+		if (row == ic_shape->points[i].row &&
+			col == ic_shape->points[i].col)
+			return TRUE;
+	}
+	return FALSE;
+}
+
+int drop_shape(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+	struct point tmp_pts[4];
+	int rmin = 0;
+	int drop = ROW_GRID;
+	int r;
+	for (int i = 0; i < 4; i++)
+		rmin = ic_shape->points[i].row > rmin ? ic_shape->points[i].row : rmin;
+
+	for (int i = 0; i < 4; i++) {
+		r = 0;
+		while (1) {
+			if (r+ic_shape->points[i].row >= ROW_GRID)
+				break;
+			if (is_point_shape(r+ic_shape->points[i].row, ic_shape->points[i].col, ic_shape) == FALSE &&
+				board[r+ic_shape->points[i].row][ic_shape->points[i].col] != '\0')
+				break;
+			r++;
+		}
+		drop = r < drop ? r : drop;
+	}
+	for (int p = 0; p < 4; p++) {
+		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
+		ic_shape->points[p].row += drop-1;
+		tmp_pts[p] = ic_shape->points[p];
+	}
+	for (int p = 0; p < 4; p++)
+		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	return TRUE;
+
 }

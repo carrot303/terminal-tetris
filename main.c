@@ -126,23 +126,34 @@ int main(int argc, char** argv) {
 		display_grid(grid);
 		refresh();
 		key = getch();
-		if (pre_key == KEY_DOWN && key != KEY_DOWN)
+		if (pre_key == KEY_DOWN || pre_key == 'W' || pre_key == 'w' &&
+			pre_key != KEY_DOWN || pre_key != 'W' || pre_key != 'w')
 			delay = 0.004;
 		switch (key) {
 		case 'w':
 		case 'W':
 		case KEY_UP:
-			do_action(&current_cshape, grid, '>');
+			shape_rotate_right(&current_cshape, grid);
 			break;
+		case 's':
+		case 'S':
 		case KEY_DOWN:
 			// speed up
 			delay = 0.001;
 			break;
+		case 'd':
+		case 'D':
 		case KEY_RIGHT:
-			do_action(&current_cshape, grid, 'R');
+			move_right(&current_cshape, grid);
 			break;
+		case 'a':
+		case 'A':
 		case KEY_LEFT:
-			do_action(&current_cshape, grid, 'L');
+			move_left(&current_cshape, grid);
+			break;
+		case 'j':
+			if (drop_shape(&current_cshape, grid) == TRUE)
+				current_cshape = insert_shape(grid, pick_shape());
 			break;
 		case 'q':
 		case 'Q':

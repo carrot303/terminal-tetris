@@ -73,3 +73,5 @@ void point_rotate_left(struct point* ptr, struct point* origin_point);
 struct point get_origin_point(struct c_shape*);
 int get_shape_index(char shape_name);
 void do_action(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action);
+int drop_shape(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+int is_point_shape(int row, int col, struct c_shape* ic_shape);
