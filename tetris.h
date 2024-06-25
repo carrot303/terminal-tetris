@@ -62,7 +62,7 @@ struct shape pick_shape(void);
 struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape);
 
 // Actions function declarations for shapes
-void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
+int move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 void move_up(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);

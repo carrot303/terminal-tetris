@@ -67,14 +67,25 @@ struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape)
 	return ic_shape;
 }
 
-void move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+int move_down(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
+	int colission = 0;
+	for (int p = 0; p < 4; p++) {
+		if ((ic_shape->points[p].row == ROW_GRID-1) ||
+			(!is_point_shape(ic_shape->points[p].row+1, ic_shape->points[p].col, ic_shape) &&
+			board[ic_shape->points[p].row+1][ic_shape->points[p].col] != '\0')) {
+			colission = 1;
+		}
+	}
+	if (colission)
+		return TRUE;
 	for (int p = 0; p < 4; p++) {
 		board[ic_shape->points[p].row++][ic_shape->points[p].col] = '\0';
 		tmp_pts[p] = ic_shape->points[p];
 	}
 	for (int p = 0; p < 4; p++)
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	return FALSE;
 }
 
 void move_up(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
@@ -89,22 +100,42 @@ void move_up(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 
 void move_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
+	int colission = 0;
 	for (int p = 0; p < 4; p++) {
-		board[ic_shape->points[p].row][ic_shape->points[p].col++] = '\0';
-		tmp_pts[p] = ic_shape->points[p];
+		if ((ic_shape->points[p].col == COL_GRID-1) ||
+			(!is_point_shape(ic_shape->points[p].row, ic_shape->points[p].col+1, ic_shape) &&
+			board[ic_shape->points[p].row][ic_shape->points[p].col+1] != '\0')) {
+			colission = 1;
+		}
 	}
-	for (int p = 0; p < 4; p++)
-		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	if (!colission) {
+		for (int p = 0; p < 4; p++) {
+			board[ic_shape->points[p].row][ic_shape->points[p].col++] = '\0';
+			tmp_pts[p] = ic_shape->points[p];
+		}
+		for (int p = 0; p < 4; p++)
+			board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	}
 }
 
 void move_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
+	int colission = 0;
 	for (int p = 0; p < 4; p++) {
-		board[ic_shape->points[p].row][ic_shape->points[p].col--] = '\0';
-		tmp_pts[p] = ic_shape->points[p];
+		if ((ic_shape->points[p].col == 0) ||
+			(!is_point_shape(ic_shape->points[p].row, ic_shape->points[p].col-1, ic_shape) &&
+			board[ic_shape->points[p].row][ic_shape->points[p].col-1] != '\0')) {
+			colission = 1;
+		}
 	}
-	for (int p = 0; p < 4; p++)
-		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	if (!colission) {
+		for (int p = 0; p < 4; p++) {
+			board[ic_shape->points[p].row][ic_shape->points[p].col--] = '\0';
+			tmp_pts[p] = ic_shape->points[p];
+		}
+		for (int p = 0; p < 4; p++)
+			board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
+	}
 }
 
 void do_action(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action) {
@@ -222,7 +253,7 @@ int drop_shape(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 		while (1) {
 			if (r+ic_shape->points[i].row >= ROW_GRID)
 				break;
-			if (is_point_shape(r+ic_shape->points[i].row, ic_shape->points[i].col, ic_shape) == FALSE &&
+			if (!is_point_shape(r+ic_shape->points[i].row, ic_shape->points[i].col, ic_shape) &&
 				board[r+ic_shape->points[i].row][ic_shape->points[i].col] != '\0')
 				break;
 			r++;

@@ -120,7 +120,10 @@ int main(int argc, char** argv) {
 	start = clock();
 	while (1) {
 		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
-			move_down(&current_cshape, grid);
+			if (move_down(&current_cshape, grid) == TRUE) {
+				current_cshape = insert_shape(grid, pick_shape());
+				continue;
+			};
 			start = clock();
 		}
 		display_grid(grid);

@@ -16,4 +16,4 @@ tetris.o: tetris.h
 rebuild: clean build
 
 clean:
-	rm -rf ${TARGET_BIN} ${OBJECTS}
+	rm -rf ${OBJECTS}
