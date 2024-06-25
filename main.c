@@ -154,7 +154,7 @@ int main(int argc, char** argv) {
 		case KEY_LEFT:
 			move_left(&current_cshape, grid);
 			break;
-		case 'j':
+		case ' ':
 			if (drop_shape(&current_cshape, grid) == TRUE)
 				current_cshape = insert_shape(grid, pick_shape());
 			break;
