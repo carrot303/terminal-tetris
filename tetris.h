@@ -12,8 +12,8 @@
 #define CHAR_HORIZANTAL_EDGE 		"\xE2\x94\x80"
 #define BLOCK						"\xE2\x96\x88\xE2\x96\x88"
 
-#define ROW_GRID 20
-#define COL_GRID 10
+#define ROW_GRID 30
+#define COL_GRID 20
 #define INIT_ROW -1
 #define INIT_COL -1
 #define COLOR_ORANGE 9
