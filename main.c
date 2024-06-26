@@ -7,7 +7,6 @@
 
 #include "tetris.h"
 
-
 struct shape SHAPES[SIZE_SHAPE] = {
 	{
 		.name='O',
@@ -16,7 +15,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','\0','\0','\0'},
 			{'\0','O','O','\0'},
 			{'\0','O','O','\0'},
-			{'\0','\0','\0','\0'}}
+			{'\0','\0','\0','\0'}},
+		.init_position=1
 	},
 	{
 		.name='L',
@@ -25,7 +25,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','L','\0','\0'},
 			{'\0','L','\0','\0'},
 			{'\0','L','L','\0'},
-			{'\0','\0','\0','\0'}}
+			{'\0','\0','\0','\0'}},
+		.init_position=1
 	},
 	{
 		.name='J',
@@ -34,7 +35,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','J','\0','\0'},
 			{'\0','J','\0','\0'},
 			{'J','J','\0','\0'},
-			{'\0','\0','\0','\0'}}
+			{'\0','\0','\0','\0'}},
+		.init_position=0
 	},
 	{
 		.name='I',
@@ -43,7 +45,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','\0','I','\0'},
 			{'\0','\0','I','\0'},
 			{'\0','\0','I','\0'},
-			{'\0','\0','I','\0'}}
+			{'\0','\0','I','\0'}},
+		.init_position=2
 	},
 	{
 		.name='S',
@@ -52,7 +55,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','\0','\0','\0'},
 			{'\0','S','S','\0'},
 			{'S','S','\0','\0'},
-			{'\0','\0','\0','\0'}}
+			{'\0','\0','\0','\0'}},
+		.init_position=0
 	},
 	{
 		.name='Z',
@@ -61,7 +65,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','\0','\0','\0'},
 			{'Z','Z','\0','\0'},
 			{'\0','Z','Z', '\0'},
-			{'\0','\0','\0','\0'}}
+			{'\0','\0','\0','\0'}},
+		.init_position=0
 	},
 	{
 		.name='T',
@@ -70,7 +75,8 @@ struct shape SHAPES[SIZE_SHAPE] = {
 			{{'\0','\0','\0','\0'},
 			{'T','T','T','\0'},
 			{'\0','T','\0','\0'},
-			{'\0','\0','\0','\0'}}
+			{'\0','\0','\0','\0'}},
+		.init_position=0
 	}
 };
 
@@ -91,11 +97,14 @@ int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 
 
 struct c_shape current_cshape;
+struct shape next_shape;
 char grid[ROW_GRID][COL_GRID] = {};
 int key;
 int pre_key;
-float delay = 0.004;
+float delay = DEFAULT_DELAY;
 clock_t start;
+int losed = 0;
+int score = 0;
 
 int main(int argc, char** argv) {
 	srand(time(NULL));
@@ -104,7 +113,7 @@ int main(int argc, char** argv) {
 	initscr();
 	keypad(stdscr, TRUE);
 	noecho();
-	timeout(300);
+	timeout(100);
 	cbreak();
 
 	if (has_colors() != 1) {
@@ -116,12 +125,21 @@ int main(int argc, char** argv) {
 	for (int i = 1; i < 8; i++) init_pair(i, SHAPES[i-1].color, 0);
 
 	bkgd(COLOR_PAIR(rand() % SIZE_SHAPE)); // random background color
-	current_cshape = insert_shape(grid, pick_shape());
+	next_shape = pick_shape();
+	current_cshape = insert_shape(grid, next_shape);
 	start = clock();
+	int update_shape = TRUE;
 	while (1) {
+		if (update_shape) {
+			score += remove_filled_rows(grid);
+			next_shape = pick_shape();
+			update_shape = FALSE;	
+		}
 		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
 			if (move_down(&current_cshape, grid) == TRUE) {
-				current_cshape = insert_shape(grid, pick_shape());
+				current_cshape = insert_shape(grid, next_shape);
+				update_shape = TRUE;
+				if (losed) goto lose;
 				continue;
 			};
 			start = clock();
@@ -131,7 +149,7 @@ int main(int argc, char** argv) {
 		key = getch();
 		if (pre_key == KEY_DOWN || pre_key == 'W' || pre_key == 'w' &&
 			pre_key != KEY_DOWN || pre_key != 'W' || pre_key != 'w')
-			delay = 0.004;
+			delay = DEFAULT_DELAY;
 		switch (key) {
 		case 'w':
 		case 'W':
@@ -142,7 +160,7 @@ int main(int argc, char** argv) {
 		case 'S':
 		case KEY_DOWN:
 			// speed up
-			delay = 0.001;
+			delay = SPEEDUP_DELAY;
 			break;
 		case 'd':
 		case 'D':
@@ -155,8 +173,12 @@ int main(int argc, char** argv) {
 			move_left(&current_cshape, grid);
 			break;
 		case ' ':
-			if (drop_shape(&current_cshape, grid) == TRUE)
-				current_cshape = insert_shape(grid, pick_shape());
+		case '0':
+			if (drop_shape(&current_cshape, grid) == TRUE) {
+				current_cshape = insert_shape(grid, next_shape);
+				update_shape = TRUE;
+				if (losed) goto lose;
+			}
 			break;
 		case 'q':
 		case 'Q':
@@ -168,4 +190,9 @@ int main(int argc, char** argv) {
 
 	endgame:
 		endwin();
+		exit(0);
+	lose:
+		endwin();
+		printf("You losed!\n");
+		exit(1);
 }

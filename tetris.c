@@ -5,10 +5,6 @@
 
 #include "tetris.h"
 
-#define MIDDLE_COL ((COL_GRID/2-2)-1)
-#define ABS(x) (x >= 0 ? x : -x)
-
-
 void display_cell(int r, int c, char board[ROW_GRID][COL_GRID]) {
 	if (r == INIT_ROW && c == INIT_COL)
 		addstr(CHAR_TOP_LEFT_CORNER);
@@ -57,9 +53,11 @@ struct c_shape insert_shape(char board[ROW_GRID][COL_GRID], struct shape ishape)
 	for (int r = 0; r < 4; r++) {
 		for (int c = 0; c < 4; c++) {
 			if (ishape.structure[r][c] != '\0') {
-				board[r][c+MIDDLE_COL] = ishape.structure[r][c];
+				if (board[r][c+MIDDLE_COL-ishape.init_position] != '\0')
+					losed = 1; 
+				board[r][c+MIDDLE_COL-ishape.init_position] = ishape.structure[r][c];
 				p.row = r;
-				p.col = c+MIDDLE_COL;
+				p.col = c+MIDDLE_COL-ishape.init_position;
 				ic_shape.points[cnt++] = p;
 			}
 		}
@@ -301,4 +299,24 @@ int drop_shape(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
 	return TRUE;
 
+}
+
+int remove_filled_rows(char board[ROW_GRID][COL_GRID]) {
+	static int score_per_row[5] = {0, 40, 100, 300, 1200};
+	int removed_count = 0;
+	int r, c;
+	for (r = 0; r < ROW_GRID; r++) {
+		int filled = 1;
+		for (c = 0; c < COL_GRID; c++)
+			filled &= board[r][c] != '\0';
+		if (filled) {
+			removed_count++;
+			for (int x = r; x > 4; x--) {
+				for (int y = 0; y < COL_GRID; y++) {
+					board[x][y] = board[x-1][y];
+				}
+			}
+		}
+	}
+	return score_per_row[removed_count];
 }

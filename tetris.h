@@ -12,11 +12,15 @@
 #define CHAR_HORIZANTAL_EDGE 		"\xE2\x94\x80"
 #define BLOCK						"\xE2\x96\x88\xE2\x96\x88"
 
-#define ROW_GRID 30
-#define COL_GRID 20
+#define ROW_GRID 20
+#define COL_GRID 10
 #define INIT_ROW -1
+#define DEFAULT_DELAY 0.015
+#define SPEEDUP_DELAY 0.001
 #define INIT_COL -1
 #define COLOR_ORANGE 9
+#define MIDDLE_COL (COL_GRID/2-1)
+#define ABS(x) (x >= 0 ? x : -x)
 #if defined(COLOR_YELLOW)
 #undef COLOR_YELLOW
 #endif
@@ -40,6 +44,7 @@ struct shape {
 	char name;
 	char structure[4][4];
 	int color;
+	int init_position;
 };
 
 struct point {
@@ -58,6 +63,7 @@ struct c_shape {
 extern struct shape SHAPES[SIZE_SHAPE];
 extern int ORIGIN_RULES[SIZE_SHAPE][4][2];
 extern int SHAPE_COLORES[SIZE_SHAPE];
+extern int losed;
 
 
 // Function declarations
@@ -80,3 +86,4 @@ int get_shape_index(char shape_name);
 void do_action(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char action);
 int drop_shape(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]);
 int is_point_shape(int row, int col, struct c_shape* ic_shape);
+int remove_filled_rows(char board[ROW_GRID][COL_GRID]);
