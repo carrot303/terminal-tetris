@@ -150,48 +150,80 @@ void do_action(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID], char ac
 	}
 }
 
-void point_rotate_right(struct point* ptr, struct point* origin_point) {
+int point_rotate_right(struct point* ptr, struct point* origin_point, char board[ROW_GRID][COL_GRID], struct c_shape* ic_shape, int update) {
 	int abs_row = ptr->row-origin_point->row;
 	int abs_col = ptr->col-origin_point->col;
 	int final_abs_row = abs_col;
 	int final_abs_col = 3-abs_row;
-	ptr->row += final_abs_row-abs_row;
-	ptr->col += final_abs_col-abs_col;
+	int fcol, frow;
+	fcol = ptr->col + final_abs_col-abs_col;
+	frow = ptr->row + final_abs_row-abs_row;
+	if (frow >= ROW_GRID || frow < 0) return TRUE;
+	else if (fcol >= COL_GRID || fcol < 0) return TRUE;
+	else if (!is_point_shape(frow, fcol, ic_shape) && board[frow][fcol] != '\0') return TRUE;
+
+	if (update) {
+		ptr->row = frow;
+		ptr->col = fcol;
+	}
+	return FALSE;
 }
 
-void point_rotate_left(struct point* ptr, struct point* origin_point) {
+int point_rotate_left(struct point* ptr, struct point* origin_point, char board[ROW_GRID][COL_GRID], struct c_shape* ic_shape, int update) {
 	int abs_row = ptr->row-origin_point->row;
 	int abs_col = ptr->col-origin_point->col;
 	int final_abs_row = 3-abs_col;
 	int final_abs_col = abs_row;
-	ptr->row += final_abs_row-abs_row;
-	ptr->col += final_abs_col-abs_col;
+	int fcol, frow;
+	fcol = ptr->col + final_abs_col-abs_col;
+	frow = ptr->row + final_abs_row-abs_row;
+	if (frow >= ROW_GRID || frow < 0) return TRUE;
+	else if (fcol >= COL_GRID || fcol < 0) return TRUE;
+	else if (!is_point_shape(frow, fcol, ic_shape) && board[frow][fcol] != '\0') return TRUE;
+
+	if (update) {
+		ptr->row = frow;
+		ptr->col = fcol;
+	}
+	return FALSE;
 }
 
-void shape_rotate_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+int shape_rotate_right(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
 	struct point origin_point = get_origin_point(ic_shape);
+	int colission = 0;
+	for (int p = 0; p < 4; p++)
+		colission |= point_rotate_right(&ic_shape->points[p], &origin_point, board, ic_shape, FALSE);
+
+	if (colission) return TRUE;
 	for (int p = 0; p < 4; p++) {
 		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
-		point_rotate_right(&ic_shape->points[p], &origin_point);
+		point_rotate_right(&ic_shape->points[p], &origin_point, board, ic_shape, TRUE);
 		tmp_pts[p] = ic_shape->points[p];
 	}
 	for (int p = 0; p < 4; p++)
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
 	ic_shape->direction++;
+	return FALSE;
 }
 
-void shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
+int shape_rotate_left(struct c_shape* ic_shape, char board[ROW_GRID][COL_GRID]) {
 	struct point tmp_pts[4];
 	struct point origin_point = get_origin_point(ic_shape);
+	int colission = 0;
+	for (int p = 0; p < 4; p++)
+		colission |= point_rotate_right(&ic_shape->points[p], &origin_point, board, ic_shape, FALSE);
+
+	if (colission) return TRUE;
 	for (int p = 0; p < 4; p++) {
 		board[ic_shape->points[p].row][ic_shape->points[p].col] = '\0';
-		point_rotate_left(&ic_shape->points[p], &origin_point);
+		point_rotate_left(&ic_shape->points[p], &origin_point, board, ic_shape, TRUE);
 		tmp_pts[p] = ic_shape->points[p];
 	}
 	for (int p = 0; p < 4; p++)
 		board[tmp_pts[p].row][tmp_pts[p].col] = ic_shape->ishape.name;
 	ic_shape->direction += 3;
+	return FALSE;
 }
 
 int get_shape_index(char shape_name) {
