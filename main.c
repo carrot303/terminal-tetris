@@ -96,14 +96,14 @@ int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 };
 
 
-struct c_shape current_cshape;
 struct shape next_shape;
-char grid[ROW_GRID][COL_GRID] = {};
+char board[ROW_GRID][COL_GRID] = {};
 int key;
 int pre_key;
 float delay = DEFAULT_DELAY;
+struct c_shape current_cshape;
 clock_t start;
-int losed = 0;
+int losed = FALSE;
 int score = 0;
 
 int main(int argc, char** argv) {
@@ -126,26 +126,32 @@ int main(int argc, char** argv) {
 
 	bkgd(COLOR_PAIR(rand() % SIZE_SHAPE)); // random background color
 	next_shape = pick_shape();
-	current_cshape = insert_shape(grid, next_shape);
+	current_cshape = insert_shape(next_shape);
 	start = clock();
 	int update_shape = TRUE;
+	int check_remove_row = TRUE;
 	while (1) {
 		if (update_shape) {
-			score += remove_filled_rows(grid);
 			next_shape = pick_shape();
-			update_shape = FALSE;	
-		}
+			update_shape = FALSE;
+			check_remove_row = TRUE;
+		} else
+			check_remove_row = FALSE;
 		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
-			if (move_down(&current_cshape, grid) == TRUE) {
-				current_cshape = insert_shape(grid, next_shape);
+			if (move_down() == TRUE) {
+				current_cshape = insert_shape(next_shape);
 				update_shape = TRUE;
 				if (losed) goto lose;
 				continue;
 			};
 			start = clock();
 		}
-		display_grid(grid);
+		display_grid();
 		refresh();
+		if (check_remove_row && remove_filled_rows()) {
+			check_remove_row = FALSE;
+			sleep(0.6);
+		}
 		key = getch();
 		if (pre_key == KEY_DOWN || pre_key == 'W' || pre_key == 'w' &&
 			pre_key != KEY_DOWN || pre_key != 'W' || pre_key != 'w')
@@ -154,7 +160,7 @@ int main(int argc, char** argv) {
 		case 'w':
 		case 'W':
 		case KEY_UP:
-			shape_rotate_right(&current_cshape, grid);
+			shape_rotate_right();
 			break;
 		case 's':
 		case 'S':
@@ -165,20 +171,21 @@ int main(int argc, char** argv) {
 		case 'd':
 		case 'D':
 		case KEY_RIGHT:
-			move_right(&current_cshape, grid);
+			move_right();
 			break;
 		case 'a':
 		case 'A':
 		case KEY_LEFT:
-			move_left(&current_cshape, grid);
+			move_left();
 			break;
 		case ' ':
 		case '0':
-			if (drop_shape(&current_cshape, grid) == TRUE) {
-				current_cshape = insert_shape(grid, next_shape);
-				update_shape = TRUE;
-				if (losed) goto lose;
-			}
+			drop_shape();
+			current_cshape = insert_shape(next_shape);
+			update_shape = TRUE;
+			check_remove_row = TRUE;
+			if (losed)
+				goto lose;
 			break;
 		case 'q':
 		case 'Q':
