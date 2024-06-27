@@ -33,26 +33,34 @@ void init_windows() {
 	int random_color = color == -1 ? rand() % SIZE_SHAPE : color;
 	game_win = newwin(ROW_GRID+2, COL_GRID*2+2, 0, 0);
 	box(game_win, 0, 0);
+	wattron(game_win, A_BOLD);
 	mvwprintw(game_win, 0, 1, "Board");
+	wattroff(game_win, A_BOLD);
 	wtimeout(game_win, 100);
 	wbkgd(game_win, COLOR_PAIR(random_color));
 	wrefresh(game_win);
 
 	score_win = newwin(SCORE_HEIGHT, 15, 0, COL_GRID*2+3);
 	box(score_win, 0, 0);
+	wattron(score_win, A_BOLD);
 	mvwprintw(score_win, 0, 1, "Info");
+	wattroff(score_win, A_BOLD);
 	wbkgd(score_win, COLOR_PAIR(random_color));
 	wrefresh(score_win);
 
 	preview_shape_win = newwin(PREVIEW_HEIGHT, 15, SCORE_HEIGHT, COL_GRID*2+3);
 	box(preview_shape_win, 0, 0);
+	wattron(preview_shape_win, A_BOLD);
 	mvwprintw(preview_shape_win, 0, 1, "Next");
+	wattroff(preview_shape_win, A_BOLD);
 	wbkgd(preview_shape_win, COLOR_PAIR(random_color));
 	wrefresh(preview_shape_win);
 
 	hint_win = newwin(8, 35, ROW_GRID-6, COL_GRID*2+3);
 	box(hint_win, 0, 0);
+	wattron(hint_win, A_BOLD);
 	mvwprintw(hint_win, 0, 1, "Hints");
+	wattroff(hint_win, A_BOLD);
 	wbkgd(hint_win, COLOR_PAIR(random_color));
 	display_hints();
 	wrefresh(hint_win);
@@ -115,6 +123,7 @@ void display_hints() {
 	write_text(hint_win, "up (w): rotate shape");
 	write_text(hint_win, "down (s): move down faster");
 	write_text(hint_win, "space (0): drop shape");
+	write_text(hint_win, "p/P: pause or resume");
 	write_text(hint_win, "Q/q: quite game");
 }
 
@@ -174,6 +183,9 @@ void loop() {
 			update_shape = TRUE;
 			check_remove_row = TRUE;
 			break;
+		case 'p': case 'P':
+			pause_game();
+			break;
 		case 'q': case 'Q':
 			destroy_game();
 			break;
@@ -181,4 +193,24 @@ void loop() {
 		update_screen();
 	} while (!losed);
 	destroy_game();
+}
+
+void pause_game() {
+	int key;
+	int x, y;
+	wattron(game_win, A_BOLD);
+	mvwprintw(game_win, 0, 1, "Paused");
+	while (1) {
+		key = wgetch(game_win);
+		if (key == 'p') break;
+		else if (key == 'q' || key == 'Q') destroy_game();
+	}
+	for (int i = 3; i > 0; i--) {
+		mvwprintw(game_win, 0, 1, "Play in %d", i);
+		wrefresh(game_win);
+		usleep(1000000);
+	}
+	box(game_win, 0, 0);
+	wattroff(game_win, A_BOLD);
+	mvwprintw(game_win, 0, 1, "Board");
 }

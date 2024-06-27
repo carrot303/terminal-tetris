@@ -18,3 +18,4 @@ void update_screen();
 void display_hints();
 void destroy_game();
 void write_text(WINDOW*, char*);
+void pause_game();
