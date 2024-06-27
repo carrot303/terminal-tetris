@@ -1,7 +1,7 @@
 OBJECTS = tetris.o tetrominoes.o main.o game.o
 TARGET_BIN = tetris
 CC = gcc
-PARAMS = -lncursesw
+PARAMS = -lncursesw -lm
 .PHONY = clean
 
 build: ${OBJECTS}

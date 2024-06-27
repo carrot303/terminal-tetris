@@ -49,7 +49,7 @@ struct c_shape insert_shape(struct shape ishape) {
 }
 
 int remove_filled_rows() {
-	static int score_per_row[5] = {0, 40, 100, 300, 1200};
+	static int score_per_row[5] = {10, 40, 100, 300, 1200};
 	int removed_count = 0;
 	int r, c;
 	for (r = 0; r < ROW_GRID; r++) {

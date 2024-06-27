@@ -104,7 +104,7 @@ struct shape next_shape;
 char board[ROW_GRID][COL_GRID] = {};
 struct c_shape current_cshape;
 int losed = FALSE;
-int score = 0;
+int score = -SCORE_PER_SHAPE;
 
 
 int main(int argc, char** argv) {

@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
+#include <math.h>
 
 
 #include "tetris.h"
@@ -32,7 +33,7 @@ void init_windows(void) {
 	game_win = newwin(ROW_GRID+2, COL_GRID*2+2, 0, 0);
 	box(game_win, 0, 0);
 	mvwprintw(game_win, 0, 1, "Board");
-	wtimeout(game_win, 0);
+	wtimeout(game_win, 100);
 	wbkgd(game_win, COLOR_PAIR(random_color));
 	wrefresh(game_win);
 
@@ -77,12 +78,10 @@ void update_screen() {
 }
 
 void loop() {
-	clock_t start = clock();
-	float delay = DEFAULT_DELAY;
-	int key, pre_key;
+	int key;
 	int update_shape = TRUE;
 	int check_remove_row = TRUE;
-	int first = TRUE;
+	int delay = 0;
 	current_cshape = insert_shape(pick_shape());
 
 	do {
@@ -90,34 +89,28 @@ void loop() {
 		if (update_shape) {
 			next_shape = pick_shape();
 			update_shape = FALSE;
-			if (!first)
-				score += SCORE_PER_SHAPE;
 		}
-		first = FALSE;
 
-		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
+		delay -= 100;
+		if (delay <= 0) {
+			delay = 800 * pow(0.9, 1);
 			if (move_down() == TRUE) {
 				current_cshape = insert_shape(next_shape);
 				update_shape = TRUE;
 				continue;
-			};	
-			start = clock();
+			};
 		}
 		if (check_remove_row && remove_filled_rows()) {
 			check_remove_row = FALSE;
-			score -= SCORE_PER_SHAPE;
 			usleep(100000);
 		}
 		key = wgetch(game_win);
-		if (pre_key == KEY_DOWN || pre_key == 'W' || pre_key == 'w' &&
-			pre_key != KEY_DOWN || pre_key != 'W' || pre_key != 'w')
-			delay = DEFAULT_DELAY;
 		switch (key) {
 		case 'w': case 'W': case KEY_UP:
 			shape_rotate_right();
 			break;
 		case 's': case 'S': case KEY_DOWN:
-			delay = SPEEDUP_DELAY;
+			delay = 0;
 			break;
 		case 'd': case 'D': case KEY_RIGHT:
 			move_right();
@@ -135,7 +128,6 @@ void loop() {
 			exit(0);
 			break;
 		}
-		pre_key = key;
 		update_screen();
 	} while (!losed);
 	endwin();
