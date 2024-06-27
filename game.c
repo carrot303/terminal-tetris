@@ -78,12 +78,16 @@ void show_score() {
 }
 
 void update_screen() {
-	if (rgb == TRUE) {
-		int random_color = rand() % SIZE_SHAPE;
-		wbkgd(game_win, COLOR_PAIR(random_color));
-		wbkgd(score_win, COLOR_PAIR(random_color));
-		wbkgd(preview_shape_win, COLOR_PAIR(random_color));
-		wbkgd(hint_win, COLOR_PAIR(random_color));
+	static int color_id = 0;
+	static int change_color_delay = 0;
+	change_color_delay -= 100;
+	if (rgb == TRUE && change_color_delay <= 0) {
+		change_color_delay = 800 * pow(0.9, 20);
+		wbkgd(game_win, COLOR_PAIR(color_id%SIZE_SHAPE));
+		wbkgd(score_win, COLOR_PAIR(color_id%SIZE_SHAPE));
+		wbkgd(preview_shape_win, COLOR_PAIR(color_id%SIZE_SHAPE));
+		wbkgd(hint_win, COLOR_PAIR(color_id%SIZE_SHAPE));
+		color_id++;
 		wrefresh(hint_win);
 	}
 	display_grid();
