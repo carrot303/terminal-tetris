@@ -34,11 +34,33 @@ void init_windows(void) {
 	wrefresh(game_win);
 	wtimeout(game_win, 0);
 	wbkgd(game_win, COLOR_PAIR(rand() % SIZE_SHAPE));
+
+	preview_shape_win = newwin(6,6*2, ROW_GRID-4, COL_GRID*2+2);
+	box(preview_shape_win, 0, 0);
+	mvwprintw(preview_shape_win, 0, 1, "Next");
+	wrefresh(preview_shape_win);
+	wbkgd(preview_shape_win, COLOR_PAIR(rand() % SIZE_SHAPE));
+}
+
+void preview_shape() {
+	for (int r = 0; r < 4; r++) {
+		for (int c = 0; c < 4; c++) {
+			if (next_shape.structure[r][c]) {
+				wattron(preview_shape_win, COLOR_PAIR(SHAPE_INDEX(next_shape.name)+1));
+				mvwprintw(preview_shape_win, r+1, c*2+2, BLOCK);
+				wattroff(preview_shape_win, COLOR_PAIR(SHAPE_INDEX(next_shape.name)+1));
+			} else {
+				mvwprintw(preview_shape_win, r+1, c*2+2, "  ");
+			}
+		}
+	}
 }
 
 void update_screen() {
 	display_grid();
 	wrefresh(game_win);
+	preview_shape();
+	wrefresh(preview_shape_win);
 }
 
 void loop() {

@@ -1,0 +1,7 @@
+- []: performance (use global variable instead passing as argument to functions)
+- []: score system
+- []: other windows (next shape, title, info, level, etc)
+- []: customize board width*height (argument)
+- []: fix bugs
+- []: pause the game, reset boards optional
+- []: clean the code (more header file and make fuctional)
