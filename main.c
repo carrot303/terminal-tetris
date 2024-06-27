@@ -94,7 +94,7 @@ struct shape next_shape;
 char board[ROW_GRID][COL_GRID] = {};
 struct c_shape current_cshape;
 int losed = FALSE;
-int score = -SCORE_PER_SHAPE;
+int score = 0;
 int level = 1;
 int color = -1; // randomly
 int rgb = FALSE;

@@ -58,7 +58,7 @@ int remove_filled_rows() {
 			filled &= board[r][c] != '\0';
 		if (filled) {
 			removed_count++;
-			for (int x = r; x > 4; x--) {
+			for (int x = r; x > 1; x--) {
 				for (int y = 0; y < COL_GRID; y++) {
 					board[x][y] = board[x-1][y];
 				}

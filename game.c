@@ -62,7 +62,7 @@ void init_windows() {
 	hint_win = newwin(9, 35, ROW_GRID-7, COL_GRID*2+3);
 	box(hint_win, 0, 0);
 	wattron(hint_win, A_BOLD);
-	mvwprintw(hint_win, 0, 1, "Hints");
+	mvwprintw(hint_win, 0, 1, "Hotkeys");
 	wattroff(hint_win, A_BOLD);
 	wbkgd(hint_win, COLOR_PAIR(random_color));
 	display_hints();
@@ -175,7 +175,6 @@ int destroy_game() {
 void loop() {
 	int key;
 	int update_shape = TRUE;
-	int check_remove_row = TRUE;
 	int delay = 0;
 	restarts++;
 	current_cshape = insert_shape(pick_shape());
@@ -185,7 +184,6 @@ void loop() {
 		exit(0);
 	}
 	do {
-		check_remove_row = update_shape;
 		if (update_shape) {
 			next_shape = pick_shape();
 			update_shape = FALSE;
@@ -195,14 +193,11 @@ void loop() {
 		if (delay <= 0) {
 			delay = 800 * pow(0.9, level);
 			if (move_down() == TRUE) {
+				remove_filled_rows();
 				current_cshape = insert_shape(next_shape);
 				update_shape = TRUE;
 				continue;
 			};
-		}
-		if (check_remove_row && remove_filled_rows()) {
-			check_remove_row = FALSE;
-			usleep(100000);
 		}
 		key = wgetch(game_win);
 		switch (key) {
@@ -220,9 +215,9 @@ void loop() {
 			break;
 		case ' ': case '0': case '\n':
 			drop_shape();
+			remove_filled_rows();
 			current_cshape = insert_shape(next_shape);
 			update_shape = TRUE;
-			check_remove_row = TRUE;
 			break;
 		case 'p': case 'P':
 			pause_game();
