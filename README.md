@@ -4,4 +4,4 @@ Terminal based Tetris game
 
 ## Sample Game
 
-![Sample](./static/output.git)
+![Sample](./static/output.gif)
