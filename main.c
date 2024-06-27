@@ -98,7 +98,7 @@ int score = -SCORE_PER_SHAPE;
 int level = 1;
 int color = -1; // randomly
 int rgb = FALSE;
-WINDOW* game_win, *preview_shape_win, *score_win, *hint_win;
+WINDOW* game_win, *preview_shape_win, *score_win, *hint_win, *prompt_win;
 
 int main(int argc, char** argv) {
 	for (argc--,argv++; argc > 0; argc--,argv++) {

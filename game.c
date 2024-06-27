@@ -3,6 +3,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
+#include <string.h>
 
 #include "tetris.h"
 #include "game.h"
@@ -56,7 +57,7 @@ void init_windows() {
 	wbkgd(preview_shape_win, COLOR_PAIR(random_color));
 	wrefresh(preview_shape_win);
 
-	hint_win = newwin(8, 35, ROW_GRID-6, COL_GRID*2+3);
+	hint_win = newwin(9, 35, ROW_GRID-7, COL_GRID*2+3);
 	box(hint_win, 0, 0);
 	wattron(hint_win, A_BOLD);
 	mvwprintw(hint_win, 0, 1, "Hints");
@@ -64,6 +65,12 @@ void init_windows() {
 	wbkgd(hint_win, COLOR_PAIR(random_color));
 	display_hints();
 	wrefresh(hint_win);
+
+	prompt_win = newwin(4, COL_GRID*4, ROW_GRID+2, 0);
+	wbkgd(prompt_win, COLOR_PAIR(random_color));
+	wattron(prompt_win, A_BOLD);
+	wrefresh(prompt_win);
+
 }
 
 void preview_shape() {
@@ -124,16 +131,42 @@ void display_hints() {
 	write_text(hint_win, "down (s): move down faster");
 	write_text(hint_win, "space (0): drop shape");
 	write_text(hint_win, "p/P: pause or resume");
+	write_text(hint_win, "r/R: restart game");
 	write_text(hint_win, "Q/q: quite game");
 }
 
-void destroy_game() {
+int destroy_game() {
+	int key; 
+	if (losed) {
+		while (1) {
+			key = prompt_user("Sorry you losed :) restart game? [Y/n]");
+			if (key == '\n' || key == 'y' || key == 'Y' || key == 'n' || key == 'N') {
+				break;
+			}
+		}
+		if (key == 'y' || key == 'Y' || key == '\n') {
+			reset_game();
+			return TRUE;
+		}
+	} else {
+		while (1) {
+			key = prompt_user("Are you sure to exit? [Y/n]");
+			if (key == '\n' || key == 'y' || key == 'Y' || key == 'n' || key == 'N') {
+				break;
+			}
+		}
+		if (key == 'n' || key == 'N')
+			return FALSE;
+	}
+	delwin(prompt_win);
 	delwin(game_win);
 	delwin(score_win);
 	delwin(preview_shape_win);
+	delwin(hint_win);
 	clear();
 	endwin();
 	exit(0);
+	return FALSE;
 }
 
 void loop() {
@@ -141,8 +174,14 @@ void loop() {
 	int update_shape = TRUE;
 	int check_remove_row = TRUE;
 	int delay = 0;
+	static int restarts = 0;
+	restarts++;
 	current_cshape = insert_shape(pick_shape());
-
+	if (restarts > 5) {
+		endwin();
+		printf("Sorry, you cannot restart anymore :/\n");
+		exit(0);
+	}
 	do {
 		check_remove_row = update_shape;
 		if (update_shape) {
@@ -186,13 +225,21 @@ void loop() {
 		case 'p': case 'P':
 			pause_game();
 			break;
+		case 'r': case 'R':
+			key = prompt_user("Are you sure to reset? [Y/n]");
+			if (key == 'y' || key == 'Y' || key == '\n') {
+				reset_game();
+				return loop();
+			}
+			break;
 		case 'q': case 'Q':
 			destroy_game();
 			break;
 		}
 		update_screen();
 	} while (!losed);
-	destroy_game();
+	if (destroy_game() == TRUE)
+		return loop();
 }
 
 void pause_game() {
@@ -213,4 +260,20 @@ void pause_game() {
 	box(game_win, 0, 0);
 	wattroff(game_win, A_BOLD);
 	mvwprintw(game_win, 0, 1, "Board");
+}
+
+int prompt_user(char* prompt) {
+	int ch;
+	mvwprintw(prompt_win, 0, 1, "%s", prompt);
+	while ((ch = wgetch(prompt_win)) == ERR)
+		;
+	wclear(prompt_win);
+	wrefresh(prompt_win);
+	return ch;
+}
+
+void reset_game() {
+	memset(board, '\0', ROW_GRID*COL_GRID);
+	score = -SCORE_PER_SHAPE;
+	losed = FALSE;
 }
