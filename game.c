@@ -4,14 +4,14 @@
 #include <unistd.h>
 #include <math.h>
 
-
 #include "tetris.h"
 #include "game.h"
-
 
 extern struct shape next_shape;
 extern struct c_shape current_cshape;
 extern int level;
+extern int rgb;
+extern int color;
 
 void init_windows() {
 	initscr();
@@ -30,7 +30,7 @@ void init_windows() {
 	start_color();
 	for (int i = 1; i < 8; i++) init_pair(i, SHAPES[i-1].color, 0);
 
-	int random_color = rand() % SIZE_SHAPE;
+	int random_color = color == -1 ? rand() % SIZE_SHAPE : color;
 	game_win = newwin(ROW_GRID+2, COL_GRID*2+2, 0, 0);
 	box(game_win, 0, 0);
 	mvwprintw(game_win, 0, 1, "Board");
@@ -78,6 +78,14 @@ void show_score() {
 }
 
 void update_screen() {
+	if (rgb == TRUE) {
+		int random_color = rand() % SIZE_SHAPE;
+		wbkgd(game_win, COLOR_PAIR(random_color));
+		wbkgd(score_win, COLOR_PAIR(random_color));
+		wbkgd(preview_shape_win, COLOR_PAIR(random_color));
+		wbkgd(hint_win, COLOR_PAIR(random_color));
+		wrefresh(hint_win);
+	}
 	display_grid();
 	preview_shape();
 	show_score();

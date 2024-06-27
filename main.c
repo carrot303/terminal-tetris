@@ -4,6 +4,7 @@
 #include <locale.h>
 #include <unistd.h>
 #include <ncurses.h>
+#include <string.h>
 
 #include "tetris.h"
 #include "game.h"
@@ -94,10 +95,49 @@ char board[ROW_GRID][COL_GRID] = {};
 struct c_shape current_cshape;
 int losed = FALSE;
 int score = -SCORE_PER_SHAPE;
-int level = 2;
+int level = 1;
+int color = -1; // randomly
+int rgb = FALSE;
 WINDOW* game_win, *preview_shape_win, *score_win, *hint_win;
 
 int main(int argc, char** argv) {
+	for (argc--,argv++; argc > 0; argc--,argv++) {
+		if (strcmp(*argv, "--rgb") == 0) {
+			rgb = TRUE;
+		} else if (strcmp(*argv, "--level") == 0) {
+			if (*(argv+1) != NULL && atoi(*(argv+1)) > 0 && atoi(*(argv+1)) < 7) {
+				level = atoi(*(argv+1));
+				argv++; argc--;
+			} else {
+				printf("[-] ERROR: level between [1-6] must be provide!\n");
+				exit(1);
+			}
+		} else if (strcmp(*argv, "--bg") == 0) {
+			if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "YELLOW") == 0))
+				color = 1;
+			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "ORANGE") == 0))
+				color = 2;
+			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "BLUE") == 0))
+				color = 3;
+			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "CYAN") == 0))
+				color = 4;
+			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "GREEN") == 0))
+				color = 5;
+			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "RED") == 0))
+				color = 6;
+			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "MAGENTA") == 0))
+				color = 7;
+			else {
+				printf("[-] ERROR: invalid color given!, " \
+					   "valids: [yellow, orange, blue, cyan, green, red, magenta]\n");
+				exit(1);
+			}
+			argv++; argc--;
+		} else {
+			printf("[-] ERROR: invalid options '%s'\n", *argv);
+			exit(1);
+		}
+	}
 	srand(time(NULL));
 	setlocale(LC_ALL, "");
 
