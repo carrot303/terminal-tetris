@@ -14,6 +14,8 @@ extern int level;
 extern int rgb;
 extern int color;
 
+int restarts = 0;
+
 void init_windows() {
 	initscr();
 	keypad(stdscr, TRUE);
@@ -90,6 +92,7 @@ void preview_shape() {
 void show_score() {
 	mvwprintw(score_win, 1, 1, "Score: %d", score);
 	mvwprintw(score_win, 2, 1, "Level: %d", level);
+	mvwprintw(score_win, 3, 1, "Attempts: %d", restarts);
 }
 
 void update_screen() {
@@ -174,7 +177,6 @@ void loop() {
 	int update_shape = TRUE;
 	int check_remove_row = TRUE;
 	int delay = 0;
-	static int restarts = 0;
 	restarts++;
 	current_cshape = insert_shape(pick_shape());
 	if (restarts > 5) {
