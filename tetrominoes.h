@@ -1,4 +1,4 @@
-#include "screen.h"
+#include "main.h"
 
 
 #define SHAPE_INDEX(name) ((name == 'O') ? O_SHAPE : (name == 'L') ? L_SHAPE : \
