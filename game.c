@@ -13,7 +13,7 @@ extern struct shape next_shape;
 extern struct c_shape current_cshape;
 extern int level;
 
-void init_windows(void) {
+void init_windows() {
 	initscr();
 	keypad(stdscr, TRUE);
 	noecho();
@@ -38,17 +38,24 @@ void init_windows(void) {
 	wbkgd(game_win, COLOR_PAIR(random_color));
 	wrefresh(game_win);
 
-	score_win = newwin(SCORE_HEIGHT,12, 0, COL_GRID*2+2);
+	score_win = newwin(SCORE_HEIGHT, 15, 0, COL_GRID*2+3);
 	box(score_win, 0, 0);
-	mvwprintw(score_win, 0, 1, "Score");
+	mvwprintw(score_win, 0, 1, "Info");
 	wbkgd(score_win, COLOR_PAIR(random_color));
 	wrefresh(score_win);
 
-	preview_shape_win = newwin(6,12, SCORE_HEIGHT, COL_GRID*2+2);
+	preview_shape_win = newwin(PREVIEW_HEIGHT, 15, SCORE_HEIGHT, COL_GRID*2+3);
 	box(preview_shape_win, 0, 0);
 	mvwprintw(preview_shape_win, 0, 1, "Next");
 	wbkgd(preview_shape_win, COLOR_PAIR(random_color));
 	wrefresh(preview_shape_win);
+
+	hint_win = newwin(8, 35, ROW_GRID-6, COL_GRID*2+3);
+	box(hint_win, 0, 0);
+	mvwprintw(hint_win, 0, 1, "Hints");
+	wbkgd(hint_win, COLOR_PAIR(random_color));
+	display_hints();
+	wrefresh(hint_win);
 }
 
 void preview_shape() {
@@ -66,7 +73,8 @@ void preview_shape() {
 }
 
 void show_score() {
-	mvwprintw(score_win,1,1, "%d", score);
+	mvwprintw(score_win, 1, 1, "Score: %d", score);
+	mvwprintw(score_win, 2, 1, "Level: %d", level);
 }
 
 void update_screen() {
@@ -76,6 +84,26 @@ void update_screen() {
 	wrefresh(game_win);
 	wrefresh(score_win);
 	wrefresh(preview_shape_win);
+}
+
+void write_text(WINDOW* win, char* text) {
+	wattron(hint_win, A_BOLD);
+	static int i = 0;
+	i++;
+	int j = 1;
+	for (char* c = text; *c != '\0' && *c != '\n'; c++) {
+		mvwaddch(win, i, j++, *c);
+		if (*c == ':')
+			wattroff(hint_win, A_BOLD);
+	}
+}
+
+void display_hints() {
+	write_text(hint_win, "left/right (a/d): move left/right");
+	write_text(hint_win, "up (w): rotate shape");
+	write_text(hint_win, "down (s): move down faster");
+	write_text(hint_win, "space (0): drop shape");
+	write_text(hint_win, "Q/q: quite game");
 }
 
 void destroy_game() {

@@ -8,8 +8,6 @@
 #include "tetris.h"
 #include "game.h"
 
-
-
 struct shape SHAPES[SIZE_SHAPE] = {
 	{
 		.name='O',
@@ -96,9 +94,8 @@ char board[ROW_GRID][COL_GRID] = {};
 struct c_shape current_cshape;
 int losed = FALSE;
 int score = -SCORE_PER_SHAPE;
-int level = 1;
-WINDOW* game_win, *preview_shape_win, *score_win;
-
+int level = 2;
+WINDOW* game_win, *preview_shape_win, *score_win, *hint_win;
 
 int main(int argc, char** argv) {
 	srand(time(NULL));
