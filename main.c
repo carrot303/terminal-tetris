@@ -6,6 +6,10 @@
 #include <ncurses.h>
 
 #include "tetris.h"
+#include "game.h"
+
+
+WINDOW* game_win, preview_shape_win, information_win;
 
 struct shape SHAPES[SIZE_SHAPE] = {
 	{
@@ -98,108 +102,15 @@ int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 
 struct shape next_shape;
 char board[ROW_GRID][COL_GRID] = {};
-int key;
-int pre_key;
-float delay = DEFAULT_DELAY;
 struct c_shape current_cshape;
-clock_t start;
 int losed = FALSE;
 int score = 0;
+
 
 int main(int argc, char** argv) {
 	srand(time(NULL));
 	setlocale(LC_ALL, "");
 
-	initscr();
-	keypad(stdscr, TRUE);
-	noecho();
-	timeout(100);
-	cbreak();
-
-	if (has_colors() != 1) {
-		endwin();
-		printf("Your terminal does not support color\n");
-        exit(1);
-	}
-	start_color();
-	for (int i = 1; i < 8; i++) init_pair(i, SHAPES[i-1].color, 0);
-
-	bkgd(COLOR_PAIR(rand() % SIZE_SHAPE)); // random background color
-	next_shape = pick_shape();
-	current_cshape = insert_shape(next_shape);
-	start = clock();
-	int update_shape = TRUE;
-	int check_remove_row = TRUE;
-	while (1) {
-		if (update_shape) {
-			next_shape = pick_shape();
-			update_shape = FALSE;
-			check_remove_row = TRUE;
-		} else
-			check_remove_row = FALSE;
-		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
-			if (move_down() == TRUE) {
-				current_cshape = insert_shape(next_shape);
-				update_shape = TRUE;
-				if (losed) goto lose;
-				continue;
-			};
-			start = clock();
-		}
-		display_grid();
-		refresh();
-		if (check_remove_row && remove_filled_rows()) {
-			check_remove_row = FALSE;
-			sleep(0.6);
-		}
-		key = getch();
-		if (pre_key == KEY_DOWN || pre_key == 'W' || pre_key == 'w' &&
-			pre_key != KEY_DOWN || pre_key != 'W' || pre_key != 'w')
-			delay = DEFAULT_DELAY;
-		switch (key) {
-		case 'w':
-		case 'W':
-		case KEY_UP:
-			shape_rotate_right();
-			break;
-		case 's':
-		case 'S':
-		case KEY_DOWN:
-			// speed up
-			delay = SPEEDUP_DELAY;
-			break;
-		case 'd':
-		case 'D':
-		case KEY_RIGHT:
-			move_right();
-			break;
-		case 'a':
-		case 'A':
-		case KEY_LEFT:
-			move_left();
-			break;
-		case ' ':
-		case '0':
-			drop_shape();
-			current_cshape = insert_shape(next_shape);
-			update_shape = TRUE;
-			check_remove_row = TRUE;
-			if (losed)
-				goto lose;
-			break;
-		case 'q':
-		case 'Q':
-			goto endgame;
-		}
-		pre_key = key;
-		clear();
-	}
-
-	endgame:
-		endwin();
-		exit(0);
-	lose:
-		endwin();
-		printf("You losed!\n");
-		exit(1);
+	init_windows();
+	loop();
 }

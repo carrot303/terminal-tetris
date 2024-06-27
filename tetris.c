@@ -6,37 +6,20 @@
 
 
 void display_cell(int r, int c) {
-	if (r == INIT_ROW && c == INIT_COL)
-		addstr(CHAR_TOP_LEFT_CORNER);
-	else if (r == INIT_ROW && c == COL_GRID)
-		addstr(CHAR_TOP_RIGHT_CORNER);
-	else if (r == ROW_GRID && c == INIT_COL)
-		addstr(CHAR_BOTTOM_LEFT_CORNER);
-	else if (r == ROW_GRID && c == COL_GRID)
-		addstr(CHAR_BOTTOM_RIGHT_CORNER);
-	else if ((r == INIT_ROW || r == ROW_GRID) && INIT_COL < c < COL_GRID) {
-		addstr(CHAR_HORIZANTAL_EDGE);
-		addstr(CHAR_HORIZANTAL_EDGE);
+	if (board[r][c]) {
+		wattron(game_win, COLOR_PAIR(SHAPE_INDEX(board[r][c])+1));
+		mvwprintw(game_win, r+1, c*2+1, BLOCK);
+		wattroff(game_win, COLOR_PAIR(SHAPE_INDEX(board[r][c])+1));
 	}
-	else if (c == INIT_COL || c == COL_GRID)
-		addstr(CHAR_VERTICAL_EDGE);
-	else {
-		if (board[r][c]) {
-			attron(COLOR_PAIR(SHAPE_INDEX(board[r][c])+1));
-			printw(BLOCK);
-			attroff(COLOR_PAIR(SHAPE_INDEX(board[r][c])+1));
-		}
-		else
-			addstr("  ");
-	}
+	else
+		mvwprintw(game_win, r+1, c*2+1, "  ");
 }
 
 void display_grid() {
-	for (int r = INIT_ROW; r <= ROW_GRID; r++) {
-		for (int c = INIT_COL; c <= COL_GRID; c++) {
+	for (int r = 0; r < ROW_GRID; r++) {
+		for (int c = 0; c < COL_GRID; c++) {
 			display_cell(r, c);
 		}
-		printw("\n");
 	}
 }
 
