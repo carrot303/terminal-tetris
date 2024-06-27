@@ -9,7 +9,7 @@
 #include "game.h"
 
 
-WINDOW* game_win, *preview_shape_win, *information_win;
+WINDOW* game_win, *preview_shape_win, *score_win;
 
 struct shape SHAPES[SIZE_SHAPE] = {
 	{

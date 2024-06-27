@@ -28,18 +28,25 @@ void init_windows(void) {
 	start_color();
 	for (int i = 1; i < 8; i++) init_pair(i, SHAPES[i-1].color, 0);
 
-
+	int random_color = rand() % SIZE_SHAPE;
 	game_win = newwin(ROW_GRID+2, COL_GRID*2+2, 0, 0);
 	box(game_win, 0, 0);
-	wrefresh(game_win);
+	mvwprintw(game_win, 0, 1, "Board");
 	wtimeout(game_win, 0);
-	wbkgd(game_win, COLOR_PAIR(rand() % SIZE_SHAPE));
+	wbkgd(game_win, COLOR_PAIR(random_color));
+	wrefresh(game_win);
 
-	preview_shape_win = newwin(6,6*2, ROW_GRID-4, COL_GRID*2+2);
+	score_win = newwin(SCORE_HEIGHT,12, 0, COL_GRID*2+2);
+	box(score_win, 0, 0);
+	mvwprintw(score_win, 0, 1, "Score");
+	wbkgd(score_win, COLOR_PAIR(random_color));
+	wrefresh(score_win);
+
+	preview_shape_win = newwin(6,12, SCORE_HEIGHT, COL_GRID*2+2);
 	box(preview_shape_win, 0, 0);
 	mvwprintw(preview_shape_win, 0, 1, "Next");
+	wbkgd(preview_shape_win, COLOR_PAIR(random_color));
 	wrefresh(preview_shape_win);
-	wbkgd(preview_shape_win, COLOR_PAIR(rand() % SIZE_SHAPE));
 }
 
 void preview_shape() {
@@ -56,10 +63,16 @@ void preview_shape() {
 	}
 }
 
+void show_score() {
+	mvwprintw(score_win,1,1, "%d", score);
+}
+
 void update_screen() {
 	display_grid();
-	wrefresh(game_win);
 	preview_shape();
+	show_score();
+	wrefresh(game_win);
+	wrefresh(score_win);
 	wrefresh(preview_shape_win);
 }
 
@@ -69,15 +82,18 @@ void loop() {
 	int key, pre_key;
 	int update_shape = TRUE;
 	int check_remove_row = TRUE;
+	int first = TRUE;
 	current_cshape = insert_shape(pick_shape());
 
 	do {
+		check_remove_row = update_shape;
 		if (update_shape) {
 			next_shape = pick_shape();
 			update_shape = FALSE;
-			check_remove_row = TRUE;
-		} else
-			check_remove_row = FALSE;
+			if (!first)
+				score += SCORE_PER_SHAPE;
+		}
+		first = FALSE;
 
 		if (((float)(clock() - start) / CLOCKS_PER_SEC) > delay) {
 			if (move_down() == TRUE) {
@@ -89,6 +105,7 @@ void loop() {
 		}
 		if (check_remove_row && remove_filled_rows()) {
 			check_remove_row = FALSE;
+			score -= SCORE_PER_SHAPE;
 			usleep(100000);
 		}
 		key = wgetch(game_win);

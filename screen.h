@@ -9,6 +9,8 @@
 #define BLOCK	"\xE2\x96\x88\xE2\x96\x88"
 #define ABS(x) (x >= 0 ? x : -x)
 
+#define SCORE_HEIGHT 3
+
 #undef COLOR_YELLOW
 #define COLOR_ORANGE 9
 

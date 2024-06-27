@@ -65,6 +65,6 @@ int remove_filled_rows() {
 			}
 		}
 	}
-	score += score_per_row[removed_count];
+	score += score_per_row[removed_count];;
 	return removed_count > 0 ? TRUE : FALSE;
 }
