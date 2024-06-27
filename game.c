@@ -41,7 +41,7 @@ void init_windows() {
 	wbkgd(game_win, COLOR_PAIR(random_color));
 	wrefresh(game_win);
 
-	score_win = newwin(SCORE_HEIGHT, 15, 0, COL_GRID*2+3);
+	score_win = newwin(SCORE_HEIGHT, 14, 0, COL_GRID*2+3);
 	box(score_win, 0, 0);
 	wattron(score_win, A_BOLD);
 	mvwprintw(score_win, 0, 1, "Info");
@@ -49,7 +49,7 @@ void init_windows() {
 	wbkgd(score_win, COLOR_PAIR(random_color));
 	wrefresh(score_win);
 
-	preview_shape_win = newwin(PREVIEW_HEIGHT, 15, SCORE_HEIGHT, COL_GRID*2+3);
+	preview_shape_win = newwin(PREVIEW_HEIGHT, 14, SCORE_HEIGHT, COL_GRID*2+3);
 	box(preview_shape_win, 0, 0);
 	wattron(preview_shape_win, A_BOLD);
 	mvwprintw(preview_shape_win, 0, 1, "Next");
@@ -78,10 +78,10 @@ void preview_shape() {
 		for (int c = 0; c < 4; c++) {
 			if (next_shape.structure[r][c]) {
 				wattron(preview_shape_win, COLOR_PAIR(SHAPE_INDEX(next_shape.name)+1));
-				mvwprintw(preview_shape_win, r+1, c*2+2, BLOCK);
+				mvwprintw(preview_shape_win, r+2, c*2+2, BLOCK);
 				wattroff(preview_shape_win, COLOR_PAIR(SHAPE_INDEX(next_shape.name)+1));
 			} else {
-				mvwprintw(preview_shape_win, r+1, c*2+2, "  ");
+				mvwprintw(preview_shape_win, r+2, c*2+2, "  ");
 			}
 		}
 	}
@@ -276,4 +276,9 @@ void reset_game() {
 	memset(board, '\0', ROW_GRID*COL_GRID);
 	score = -SCORE_PER_SHAPE;
 	losed = FALSE;
+	wclear(score_win);
+	box(score_win, 0, 0);
+	wattron(score_win, A_BOLD);
+	mvwprintw(score_win, 0, 1, "Info");
+	wattroff(score_win, A_BOLD);
 }

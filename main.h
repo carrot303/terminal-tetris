@@ -10,7 +10,7 @@
 #define ABS(x) (x >= 0 ? x : -x)
 
 #define SCORE_HEIGHT 4
-#define PREVIEW_HEIGHT 6
+#define PREVIEW_HEIGHT 7
 
 #undef COLOR_YELLOW
 #define COLOR_ORANGE 9
