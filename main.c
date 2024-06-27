@@ -9,7 +9,6 @@
 #include "game.h"
 
 
-WINDOW* game_win, *preview_shape_win, *score_win;
 
 struct shape SHAPES[SIZE_SHAPE] = {
 	{
@@ -83,12 +82,6 @@ struct shape SHAPES[SIZE_SHAPE] = {
 		.init_position=0
 	}
 };
-
-/* specify origin rule:
-	per shape there is rule to find out the origin point, e.g:
-	if shape is O_SHAPE and current direction of shape is UP,
-	rule for origin point is (-1, -1): that means the first point row,col must + with (-1, -1)
-*/
 int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 	{{-1, -1}, 	{-1, -1}, 	{-1, -1}, 	{-1, -1}}, 		// O_SHAPE
 	{{0, -1}, 	{-1, -1}, 	{-1, -1}, 	{-1, -2}}, 		// L_SHAPE
@@ -98,13 +91,13 @@ int ORIGIN_RULES[SIZE_SHAPE][4][2] = {
 	{{-1, 0}, 	{0, -2}, 	{-1, -1}, 	{-1, -2}}, 		// Z_SHAPE
 	{{-1, 0}, 	{0, -2}, 	{-1, -2}, 	{-1, -1}}, 		// T_SHAPE
 };
-
-
 struct shape next_shape;
 char board[ROW_GRID][COL_GRID] = {};
 struct c_shape current_cshape;
 int losed = FALSE;
 int score = -SCORE_PER_SHAPE;
+int level = 1;
+WINDOW* game_win, *preview_shape_win, *score_win;
 
 
 int main(int argc, char** argv) {

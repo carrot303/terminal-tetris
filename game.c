@@ -11,6 +11,7 @@
 
 extern struct shape next_shape;
 extern struct c_shape current_cshape;
+extern int level;
 
 void init_windows(void) {
 	initscr();
@@ -77,6 +78,15 @@ void update_screen() {
 	wrefresh(preview_shape_win);
 }
 
+void destroy_game() {
+	delwin(game_win);
+	delwin(score_win);
+	delwin(preview_shape_win);
+	clear();
+	endwin();
+	exit(0);
+}
+
 void loop() {
 	int key;
 	int update_shape = TRUE;
@@ -93,7 +103,7 @@ void loop() {
 
 		delay -= 100;
 		if (delay <= 0) {
-			delay = 800 * pow(0.9, 1);
+			delay = 800 * pow(0.9, level);
 			if (move_down() == TRUE) {
 				current_cshape = insert_shape(next_shape);
 				update_shape = TRUE;
@@ -125,10 +135,10 @@ void loop() {
 			check_remove_row = TRUE;
 			break;
 		case 'q': case 'Q':
-			exit(0);
+			destroy_game();
 			break;
 		}
 		update_screen();
 	} while (!losed);
-	endwin();
+	destroy_game();
 }
