@@ -15,6 +15,7 @@ extern int rgb;
 extern int color;
 
 int restarts = 0;
+int pre_level;
 
 void init_windows() {
 	initscr();
@@ -116,10 +117,8 @@ void update_screen() {
 	wrefresh(preview_shape_win);
 }
 
-void write_text(WINDOW* win, char* text) {
+void write_text(WINDOW* win, char* text, int i) {
 	wattron(hint_win, A_BOLD);
-	static int i = 0;
-	i++;
 	int j = 1;
 	for (char* c = text; *c != '\0' && *c != '\n'; c++) {
 		mvwaddch(win, i, j++, *c);
@@ -129,13 +128,13 @@ void write_text(WINDOW* win, char* text) {
 }
 
 void display_hints() {
-	write_text(hint_win, "left/right (a/d): move left/right");
-	write_text(hint_win, "up (w): rotate shape");
-	write_text(hint_win, "down (s): move down faster");
-	write_text(hint_win, "space (0): drop shape");
-	write_text(hint_win, "p/P: pause or resume");
-	write_text(hint_win, "r/R: restart game");
-	write_text(hint_win, "Q/q: quite game");
+	write_text(hint_win, "left/right (a/d): move left/right", 1);
+	write_text(hint_win, "up (w): rotate shape", 2);
+	write_text(hint_win, "down (s): move down faster", 3);
+	write_text(hint_win, "space (0): drop shape", 4);
+	write_text(hint_win, "p/P: pause or resume", 5);
+	write_text(hint_win, "r/R: restart game", 6);
+	write_text(hint_win, "Q/q: quite game", 7);
 }
 
 int destroy_game() {
@@ -176,6 +175,10 @@ void loop() {
 	int key;
 	int update_shape = FALSE;
 	int delay = 0;
+	int level_up_delay = 0;
+	int i = 1;
+	int level_up = FALSE;
+	pre_level = level;
 	restarts++;
 	current_cshape = insert_shape(pick_shape());
 	next_shape = pick_shape();
@@ -185,6 +188,13 @@ void loop() {
 		exit(0);
 	}
 	do {
+		if (score >= (LEVEL_UP_POINT*i) && level < 20) {
+			i++;
+			level++;
+			write_text(prompt_win, "LEVEL UP", 0);
+			wrefresh(prompt_win);
+			level_up = TRUE;
+		} 
 		update_screen();
 		if (update_shape) {
 			if (remove_filled_rows())
@@ -194,7 +204,15 @@ void loop() {
 			update_shape = FALSE;
 			continue;
 		}
-
+		level_up_delay -= 100;
+		if (level_up_delay <= 0) {
+			level_up_delay = 800 * pow(0.9, 1);
+			if (level_up) {
+				level_up = FALSE;
+				wclear(prompt_win);
+				wrefresh(prompt_win);	
+			}
+		}
 		delay -= 100;
 		if (delay <= 0) {
 			delay = 800 * pow(0.9, level);
@@ -272,8 +290,9 @@ int prompt_user(char* prompt) {
 
 void reset_game() {
 	memset(board, '\0', ROW_GRID*COL_GRID);
-	score = -SCORE_PER_SHAPE;
+	score = 0;
 	losed = FALSE;
+	level = pre_level;
 	wclear(score_win);
 	box(score_win, 0, 0);
 	wattron(score_win, A_BOLD);

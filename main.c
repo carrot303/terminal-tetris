@@ -102,7 +102,7 @@ WINDOW* game_win, *preview_shape_win, *score_win, *hint_win, *prompt_win;
 
 char HELP_TEXT[] = "Usage: ./tetris [options...]\n"
 				   " -h, --help		show this help text.\n"
-				   " -l, --level		set game level, between [1-6], default 1.\n"
+				   " -l, --level		set game level, between [1-20], default 1.\n"
 				   " -b, --background	set background color of game, default \"randomly\".\n"
 				   " -R, --rgb		apply rgb effect to game.\n\n"
 				   "list of avaiable colors:\n"
@@ -116,11 +116,11 @@ int main(int argc, char** argv) {
 		} else if (strcmp(*argv, "--rgb") == 0 || strcmp(*argv, "-R") == 0) {
 			rgb = TRUE;
 		} else if (strcmp(*argv, "--level") == 0 || strcmp(*argv, "-l") == 0) {
-			if (*(argv+1) != NULL && atoi(*(argv+1)) > 0 && atoi(*(argv+1)) < 7) {
+			if (*(argv+1) != NULL && atoi(*(argv+1)) > 0 && atoi(*(argv+1)) < 21) {
 				level = atoi(*(argv+1));
 				argv++; argc--;
 			} else {
-				printf("[-] ERROR: level between [1-6] must be provide!\n");
+				printf("[-] ERROR: level between [1-20] must be provide!\n");
 				exit(1);
 			}
 		} else if (strcmp(*argv, "-b") == 0 || strcmp(*argv, "--background") == 0) {

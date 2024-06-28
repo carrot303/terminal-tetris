@@ -1,6 +1,7 @@
 #include <ncurses.h>
 
 #define SCORE_PER_SHAPE 10
+#define LEVEL_UP_POINT 1000
 
 extern struct shape SHAPES[SIZE_SHAPE];
 extern int ORIGIN_RULES[SIZE_SHAPE][4][2];
@@ -17,7 +18,7 @@ void show_score();
 void update_screen();
 void display_hints();
 int destroy_game();
-void write_text(WINDOW*, char*);
+void write_text(WINDOW*, char*, int);
 void pause_game();
 void reset_game();
 int prompt_user(char*);

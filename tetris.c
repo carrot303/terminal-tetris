@@ -5,6 +5,8 @@
 #include "game.h"
 
 
+extern int level;
+
 void display_cell(int r, int c) {
 	if (board[r][c]) {
 		wattron(game_win, COLOR_PAIR(SHAPE_INDEX(board[r][c])+1));
@@ -65,6 +67,6 @@ int remove_filled_rows() {
 			}
 		}
 	}
-	score += score_per_row[removed_count];;
+	score += score_per_row[removed_count] * (removed_count > 0 ? level : 1);
 	return removed_count > 0 ? TRUE : FALSE;
 }
