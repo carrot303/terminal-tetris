@@ -100,11 +100,22 @@ int color = -1; // randomly
 int rgb = FALSE;
 WINDOW* game_win, *preview_shape_win, *score_win, *hint_win, *prompt_win;
 
+char HELP_TEXT[] = "Usage: ./tetris [options...]\n"
+				   " -h, --help		show this help text.\n"
+				   " -l, --level		set game level, between [1-6], default 1.\n"
+				   " -b, --background	set background color of game, default \"randomly\".\n"
+				   " -R, --rgb		apply rgb effect to game.\n\n"
+				   "list of avaiable colors:\n"
+				   " - yellow\n - orange\n - blue\n - cyan\n - green\n - red\n - magenta\n\n";
+
 int main(int argc, char** argv) {
 	for (argc--,argv++; argc > 0; argc--,argv++) {
-		if (strcmp(*argv, "--rgb") == 0) {
+		if (strcmp(*argv, "--help") == 0 || strcmp(*argv, "-h") == 0) {
+			printf("%s", HELP_TEXT);
+			exit(1);
+		} else if (strcmp(*argv, "--rgb") == 0 || strcmp(*argv, "-R") == 0) {
 			rgb = TRUE;
-		} else if (strcmp(*argv, "--level") == 0) {
+		} else if (strcmp(*argv, "--level") == 0 || strcmp(*argv, "-l") == 0) {
 			if (*(argv+1) != NULL && atoi(*(argv+1)) > 0 && atoi(*(argv+1)) < 7) {
 				level = atoi(*(argv+1));
 				argv++; argc--;
@@ -112,7 +123,7 @@ int main(int argc, char** argv) {
 				printf("[-] ERROR: level between [1-6] must be provide!\n");
 				exit(1);
 			}
-		} else if (strcmp(*argv, "--bg") == 0) {
+		} else if (strcmp(*argv, "-b") == 0 || strcmp(*argv, "--background") == 0) {
 			if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "YELLOW") == 0))
 				color = 1;
 			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "ORANGE") == 0))
@@ -128,8 +139,7 @@ int main(int argc, char** argv) {
 			else if (*(argv+1) != NULL && (strcasecmp(*(argv+1), "MAGENTA") == 0))
 				color = 7;
 			else {
-				printf("[-] ERROR: invalid color given!, " \
-					   "valids: [yellow, orange, blue, cyan, green, red, magenta]\n");
+				printf("[-] ERROR: invalid '%s' color given!, -h, --help: more info\n", *(argv+1));
 				exit(1);
 			}
 			argv++; argc--;
