@@ -174,27 +174,31 @@ int destroy_game() {
 
 void loop() {
 	int key;
-	int update_shape = TRUE;
+	int update_shape = FALSE;
 	int delay = 0;
 	restarts++;
 	current_cshape = insert_shape(pick_shape());
+	next_shape = pick_shape();
 	if (restarts > 5) {
 		endwin();
-		printf("Sorry, you cannot restart anymore :/\n");
+		printf("[-] Sorry, you cannot restart anymore :/\n");
 		exit(0);
 	}
 	do {
+		update_screen();
 		if (update_shape) {
+			if (remove_filled_rows())
+				usleep(100000);
+			current_cshape = insert_shape(next_shape);
 			next_shape = pick_shape();
 			update_shape = FALSE;
+			continue;
 		}
 
 		delay -= 100;
 		if (delay <= 0) {
 			delay = 800 * pow(0.9, level);
 			if (move_down() == TRUE) {
-				remove_filled_rows();
-				current_cshape = insert_shape(next_shape);
 				update_shape = TRUE;
 				continue;
 			};
@@ -215,8 +219,6 @@ void loop() {
 			break;
 		case ' ': case '0': case '\n':
 			drop_shape();
-			remove_filled_rows();
-			current_cshape = insert_shape(next_shape);
 			update_shape = TRUE;
 			break;
 		case 'p': case 'P':
@@ -233,7 +235,6 @@ void loop() {
 			destroy_game();
 			break;
 		}
-		update_screen();
 	} while (!losed);
 	if (destroy_game() == TRUE)
 		return loop();
