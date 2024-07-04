@@ -1,4 +1,4 @@
-OBJECTS = tetris.o tetrominoes.o main.o game.o
+OBJECTS = tetris.o tetrominoes.o main.o game.o room.o
 TARGET_BIN = tetris
 CC = gcc
 PARAMS = -lncursesw -lm
@@ -18,6 +18,9 @@ tetrominoes.o: tetrominoes.h
 
 game.o: game.h
 	$(CC) -c game.c
+
+room.o: room.h
+	$(CC) -c room.c
 
 rebuild: clean build
 

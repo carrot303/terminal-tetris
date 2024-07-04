@@ -8,6 +8,7 @@
 
 #include "tetris.h"
 #include "game.h"
+#include "room.h"
 
 struct shape SHAPES[SIZE_SHAPE] = {
 	{
@@ -99,12 +100,17 @@ int level = 1;
 int color = -1; // randomly
 int rgb = FALSE;
 WINDOW* game_win, *preview_shape_win, *score_win, *hint_win, *prompt_win;
+int socket_fd;
+int client_fd;
+int room_mode = FALSE;
 
 char HELP_TEXT[] = "Usage: ./tetris [options...]\n"
-				   " -h, --help		show this help text.\n"
-				   " -l, --level		set game level, between [1-20], default 1.\n"
-				   " -b, --background	set background color of game, default \"randomly\".\n"
-				   " -R, --rgb		apply rgb effect to game.\n\n"
+				   " -h, --help			show this help text.\n"
+				   " -l, --level			set game level, between [1-20], default 1.\n"
+				   " -b, --background		set background color of game, default \"randomly\".\n"
+				   " -R, --rgb			apply rgb effect to game.\n"
+				   " -c, --create-room <port>	creating room for two-player mode.\n"
+				   " -j, --join-room <ip> <port>	Join to room.\n\n"
 				   "list of avaiable colors:\n"
 				   " - yellow\n - orange\n - blue\n - cyan\n - green\n - red\n - magenta\n\n";
 
@@ -143,6 +149,33 @@ int main(int argc, char** argv) {
 				exit(1);
 			}
 			argv++; argc--;
+		} else if (strcmp(*argv, "-c") == 0 || strcmp(*argv, "--create-room") == 0) {
+			if (*(argv+1) != NULL && atoi(*(argv+1)) > 0 && atoi(*(argv+1)) <= 65535) {
+				create_room(atoi(*(argv+1)));
+				argv++;argc--;
+				room_mode = TRUE;
+			} else {
+				if (*(argv+1) == NULL)
+					printf("[-] ERROR: specify port for creating room\n");
+				else
+					printf("[-] ERROR: invalid port given '%s' please enter between [0-65535]\n", *(argv+1));
+				exit(1);
+			}
+		}
+		else if (strcmp(*argv, "-j") == 0 || strcmp(*argv, "--join-room") == 0) {
+			if (*(argv+1) != NULL && *(argv+2) != NULL &&
+				atoi(*(argv+2)) > 0 && atoi(*(argv+2)) <= 65535) {
+				join_room(*(argv+1), atoi(*(argv+2)));
+				argv += 2;
+				argc -= 2;
+				room_mode = TRUE;
+			} else {
+				if (*(argv+1) == NULL || *(argv+2) == NULL)
+					printf("[-] ERROR: ip and port required\n");
+				else
+					printf("[-] ERROR: invalid port given '%s' please enter between [0-65535]\n", *(argv+1));
+				exit(1);
+			}
 		} else {
 			printf("[-] ERROR: invalid options '%s'\n", *argv);
 			exit(1);
