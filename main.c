@@ -156,6 +156,7 @@ int main(int argc, char** argv) {
 				argv++;argc--;
 				turn = SERVER_SIDE;
 				player = SERVER_SIDE;
+				send_move(level);
 			} else {
 				if (*(argv+1) == NULL)
 					printf("[-] ERROR: specify port for creating room\n");
@@ -172,6 +173,7 @@ int main(int argc, char** argv) {
 				argc -= 2;
 				turn = CLIENT_SIDE;
 				player = CLIENT_SIDE;
+				level = read_move();
 			} else {
 				if (*(argv+1) == NULL || *(argv+2) == NULL)
 					printf("[-] ERROR: ip and port required\n");
