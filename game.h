@@ -21,4 +21,5 @@ int destroy_game();
 void write_text(WINDOW*, char*, int);
 void pause_game();
 void reset_game();
-int prompt_user(char*);
+int prompt_user(char*, int);
+void endgame();

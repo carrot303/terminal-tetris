@@ -7,12 +7,17 @@
 
 #include "tetris.h"
 #include "game.h"
+#include "room.h"
+
+#define OTHER_PLAYER_TURN (turn != SINGLE && turn % 2 != 0)
 
 extern struct shape next_shape;
 extern struct c_shape current_cshape;
 extern int level;
 extern int rgb;
 extern int color;
+extern int turn;
+extern int player;
 
 int restarts = 0;
 int pre_level;
@@ -137,11 +142,29 @@ void display_hints() {
 	write_text(hint_win, "Q/q: quite game", 7);
 }
 
+void endgame() {
+	delwin(prompt_win);
+	delwin(game_win);
+	delwin(score_win);
+	delwin(preview_shape_win);
+	delwin(hint_win);
+	clear();
+	endwin();
+	exit(0);
+}
+
 int destroy_game() {
 	int key; 
 	if (losed) {
 		while (1) {
-			key = prompt_user("Sorry you losed :) restart game? [Y/n]");
+			if (turn == SINGLE) {
+				key = prompt_user("Sorry you losed :) restart game? [Y/n]", FALSE);
+			} else if (player == SERVER_SIDE) {
+				key = prompt_user("Sorry you losed :) restart game? [Y/n]", FALSE);
+				send_move(key);
+			} else if (player == CLIENT_SIDE) {
+				key = prompt_user("Server is going to pick action, wait...", TRUE);
+			}
 			if (key == '\n' || key == 'y' || key == 'Y' || key == 'n' || key == 'N') {
 				break;
 			}
@@ -152,7 +175,14 @@ int destroy_game() {
 		}
 	} else {
 		while (1) {
-			key = prompt_user("Are you sure to exit? [Y/n]");
+			if (turn == SINGLE) {
+				key = prompt_user("Are you sure to exit? [Y/n]", FALSE);
+			} else if (player == SERVER_SIDE) {
+				key = prompt_user("Are you sure to exit? [Y/n]", FALSE);
+				send_move(key);
+			} else if (player == CLIENT_SIDE) {
+				key = prompt_user("Server is going to exit, wait...", TRUE);
+			}
 			if (key == '\n' || key == 'y' || key == 'Y' || key == 'n' || key == 'N') {
 				break;
 			}
@@ -160,14 +190,7 @@ int destroy_game() {
 		if (key == 'n' || key == 'N')
 			return FALSE;
 	}
-	delwin(prompt_win);
-	delwin(game_win);
-	delwin(score_win);
-	delwin(preview_shape_win);
-	delwin(hint_win);
-	clear();
-	endwin();
-	exit(0);
+	endgame();
 	return FALSE;
 }
 
@@ -202,6 +225,7 @@ void loop() {
 			current_cshape = insert_shape(next_shape);
 			next_shape = pick_shape();
 			update_shape = FALSE;
+			if (turn != SINGLE) turn++;
 			continue;
 		}
 		level_up_delay -= 100;
@@ -221,7 +245,24 @@ void loop() {
 				continue;
 			};
 		}
-		key = wgetch(game_win);
+		if (OTHER_PLAYER_TURN) {
+			key = read_move();
+			if (key == '\0') continue;
+		}
+		else {
+			key = wgetch(game_win);
+			if (turn != SINGLE) {
+				if (!(player == CLIENT_SIDE &&
+					 (key == 'R' || key == 'r' ||
+					  key == 'p' || key == 'P' ||
+					  key == 'q' || key == 'Q'))) {
+					send_move(key);
+				} else {
+					send_move('\0');
+					continue;
+				}
+			}
+		}
 		switch (key) {
 		case 'w': case 'W': case KEY_UP:
 			shape_rotate_right();
@@ -243,7 +284,14 @@ void loop() {
 			pause_game();
 			break;
 		case 'r': case 'R':
-			key = prompt_user("Are you sure to reset? [Y/n]");
+			if (turn == SINGLE) {
+				key = prompt_user("Are you sure to reset? [Y/n]", FALSE);
+			} else if (player == SERVER_SIDE) {
+				key = prompt_user("Are you sure to reset? [Y/n]", FALSE);
+				send_move(key);
+			} else if (player == CLIENT_SIDE) {
+				key = prompt_user("Server is going to reset, wait...", TRUE);
+			}
 			if (key == 'y' || key == 'Y' || key == '\n') {
 				reset_game();
 				return loop();
@@ -263,8 +311,19 @@ void pause_game() {
 	int x, y;
 	wattron(game_win, A_BOLD);
 	mvwprintw(game_win, 0, 1, "Paused");
+	wrefresh(game_win);
 	while (1) {
-		key = wgetch(game_win);
+		if (turn == SINGLE) {
+			key = wgetch(game_win);
+		} else if (player == SERVER_SIDE) {
+			key = wgetch(game_win);
+			send_move(key);
+		} else if (player == CLIENT_SIDE) {
+			key = read_move();
+			if (key == ERR) {
+				continue;
+			}
+		}
 		if (key == 'p') break;
 		else if (key == 'q' || key == 'Q') destroy_game();
 	}
@@ -278,11 +337,17 @@ void pause_game() {
 	mvwprintw(game_win, 0, 1, "Board");
 }
 
-int prompt_user(char* prompt) {
-	int ch;
+int prompt_user(char* prompt, int wait) {
+	int ch = ERR;
 	mvwprintw(prompt_win, 0, 1, "%s", prompt);
-	while ((ch = wgetch(prompt_win)) == ERR)
-		;
+	wrefresh(prompt_win);
+	while (ch == ERR) {
+		if (wait) {
+			ch = read_move();
+		} else {
+			ch = wgetch(prompt_win);
+		}
+	}
 	wclear(prompt_win);
 	wrefresh(prompt_win);
 	return ch;
@@ -293,6 +358,7 @@ void reset_game() {
 	score = 0;
 	losed = FALSE;
 	level = pre_level;
+	turn = player == SERVER_SIDE ? SERVER_SIDE : CLIENT_SIDE;
 	wclear(score_win);
 	box(score_win, 0, 0);
 	wattron(score_win, A_BOLD);

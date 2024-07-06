@@ -9,6 +9,10 @@
 #define BLOCK	"\xE2\x96\x88\xE2\x96\x88"
 #define ABS(x) (x >= 0 ? x : -x)
 
+#define SINGLE -1
+#define SERVER_SIDE 0
+#define CLIENT_SIDE 1
+
 #define SCORE_HEIGHT 5
 #define PREVIEW_HEIGHT 7
 

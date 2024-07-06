@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <string.h>
+#include <unistd.h>
 #include <netdb.h>
 
 #include "room.h"
@@ -47,6 +48,7 @@ void create_room(int port) {
 		exit(EXIT_FAILURE);
 	}
 	printf("[+] player joined\n");
+	close(socket_fd);
 }
 
 void join_room(char* room_ip, int port) {
@@ -90,4 +92,15 @@ int resolve_domain_name(char* domain_name, char addr[]) {
 		return 0;
 	}
 	return -1;
+}
+
+int read_move(void) {
+	char buf[1];
+	read(client_fd, buf, 1);
+	return buf[0];
+}
+
+void send_move(char move) {
+	char buf[1] = {move};
+	send(client_fd, buf, 1, 0);
 }

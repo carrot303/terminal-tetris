@@ -102,7 +102,8 @@ int rgb = FALSE;
 WINDOW* game_win, *preview_shape_win, *score_win, *hint_win, *prompt_win;
 int socket_fd;
 int client_fd;
-int room_mode = FALSE;
+int turn = SINGLE;
+int player = SERVER_SIDE;
 
 char HELP_TEXT[] = "Usage: ./tetris [options...]\n"
 				   " -h, --help			show this help text.\n"
@@ -153,7 +154,8 @@ int main(int argc, char** argv) {
 			if (*(argv+1) != NULL && atoi(*(argv+1)) > 0 && atoi(*(argv+1)) <= 65535) {
 				create_room(atoi(*(argv+1)));
 				argv++;argc--;
-				room_mode = TRUE;
+				turn = SERVER_SIDE;
+				player = SERVER_SIDE;
 			} else {
 				if (*(argv+1) == NULL)
 					printf("[-] ERROR: specify port for creating room\n");
@@ -168,7 +170,8 @@ int main(int argc, char** argv) {
 				join_room(*(argv+1), atoi(*(argv+2)));
 				argv += 2;
 				argc -= 2;
-				room_mode = TRUE;
+				turn = CLIENT_SIDE;
+				player = CLIENT_SIDE;
 			} else {
 				if (*(argv+1) == NULL || *(argv+2) == NULL)
 					printf("[-] ERROR: ip and port required\n");

@@ -1,11 +1,10 @@
 - [X]: performance (use global variable instead passing as argument to functions)
 - [X]: score system
 - [X]: other windows (next shape, title, info, level, etc)
-- []: customize board width*height (argument)
 - [X]: fix bugs
 - [X]: pause the game, reset boards optional
 - [X]: clean the code (more header file and make fuctional)
-- []: help args
-- []: store score in file
-- []: make scoreboard
+- [x]: help args
 - [x]: fix remove row effect
+
+- problem for room pause
