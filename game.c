@@ -264,16 +264,16 @@ void loop() {
 			}
 		}
 		switch (key) {
-		case 'w': case 'W': case KEY_UP:
+		case 'w': case 'W':
 			shape_rotate_right();
 			break;
-		case 's': case 'S': case KEY_DOWN:
+		case 's': case 'S':
 			delay = 0;
 			break;
-		case 'd': case 'D': case KEY_RIGHT:
+		case 'd': case 'D':
 			move_right();
 			break;
-		case 'a': case 'A': case KEY_LEFT:
+		case 'a': case 'A':
 			move_left();
 			break;
 		case ' ': case '0': case '\n':
@@ -358,7 +358,9 @@ void reset_game() {
 	score = 0;
 	losed = FALSE;
 	level = pre_level;
-	turn = player == SERVER_SIDE ? SERVER_SIDE : CLIENT_SIDE;
+	if (turn != SINGLE) {
+		turn = player == SERVER_SIDE ? SERVER_SIDE : CLIENT_SIDE;
+	}
 	wclear(score_win);
 	box(score_win, 0, 0);
 	wattron(score_win, A_BOLD);
