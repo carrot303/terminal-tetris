@@ -48,6 +48,7 @@ void init_windows() {
 	wtimeout(game_win, 100);
 	wbkgd(game_win, COLOR_PAIR(random_color));
 	wrefresh(game_win);
+	keypad(game_win, TRUE);
 
 	score_win = newwin(SCORE_HEIGHT, 14, 0, COL_GRID*2+3);
 	box(score_win, 0, 0);
@@ -56,6 +57,7 @@ void init_windows() {
 	wattroff(score_win, A_BOLD);
 	wbkgd(score_win, COLOR_PAIR(random_color));
 	wrefresh(score_win);
+	keypad(score_win, TRUE);
 
 	preview_shape_win = newwin(PREVIEW_HEIGHT, 14, SCORE_HEIGHT, COL_GRID*2+3);
 	box(preview_shape_win, 0, 0);
@@ -64,6 +66,7 @@ void init_windows() {
 	wattroff(preview_shape_win, A_BOLD);
 	wbkgd(preview_shape_win, COLOR_PAIR(random_color));
 	wrefresh(preview_shape_win);
+	keypad(preview_shape_win, TRUE);
 
 	hint_win = newwin(9, 35, ROW_GRID-7, COL_GRID*2+3);
 	box(hint_win, 0, 0);
@@ -73,11 +76,13 @@ void init_windows() {
 	wbkgd(hint_win, COLOR_PAIR(random_color));
 	display_hints();
 	wrefresh(hint_win);
+	keypad(hint_win, TRUE);
 
 	prompt_win = newwin(4, COL_GRID*4, ROW_GRID+2, 0);
 	wbkgd(prompt_win, COLOR_PAIR(random_color));
 	wattron(prompt_win, A_BOLD);
 	wrefresh(prompt_win);
+	keypad(prompt_win, TRUE);
 
 }
 
@@ -264,16 +269,16 @@ void loop() {
 			}
 		}
 		switch (key) {
-		case 'w': case 'W':
+		case 'w': case 'W': case KEY_UP:
 			shape_rotate_right();
 			break;
-		case 's': case 'S':
+		case 's': case 'S': case KEY_DOWN:
 			delay = 0;
 			break;
-		case 'd': case 'D':
+		case 'd': case 'D': case KEY_RIGHT:
 			move_right();
 			break;
-		case 'a': case 'A':
+		case 'a': case 'A': case KEY_LEFT:
 			move_left();
 			break;
 		case ' ': case '0': case '\n':
