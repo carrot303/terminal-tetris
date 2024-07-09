@@ -144,7 +144,7 @@ void display_hints() {
 	write_text(hint_win, "space (0): drop shape", 4);
 	write_text(hint_win, "p/P: pause or resume", 5);
 	write_text(hint_win, "r/R: restart game", 6);
-	write_text(hint_win, "Q/q: quite game", 7);
+	write_text(hint_win, "Q/q: quit game", 7);
 }
 
 void endgame() {
